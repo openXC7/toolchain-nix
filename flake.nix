@@ -6,7 +6,7 @@
   inputs.nixpkgs.url     = "nixpkgs/nixos-22.11";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs, flake-utils, ... }: #flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     let
 
       # to work with older version of flakes
@@ -20,8 +20,6 @@
 
       # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-
-      pkgs = nixpkgs.legacyPackages.x86_64-linux.pkgs;
 
       # Nixpkgs instantiated for supported system types.
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; overlays = [ self.overlay ]; });
@@ -278,24 +276,10 @@
         };
       };
 
-      devShells.x86_64-linux.default = pkgs.mkShell {
-        name = "yosys-openxc7";
-        buildInputs = [(with self.overlay; [
-          yosys
-          ghdl
-          yosys-ghdl
-        ])];
-        shellHook = ''
-          echo "Welcome in $name"
-        '';
-      };
-
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         {
-          inherit (nixpkgsFor.${system}) yosys;
-          inherit (nixpkgsFor.${system}) ghdl;
-          inherit (nixpkgsFor.${system}) yosys-ghdl;
+          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl;
         });
 
       # The default package for 'nix build'. This makes sense if the
