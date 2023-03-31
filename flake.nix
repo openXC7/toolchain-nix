@@ -274,12 +274,55 @@
             maintainers = with maintainers; [ thoughtpolice ];
           };
         };
+
+        
+        nextpnr-xilinx = with final; stdenv.mkDerivation rec {
+          pname = "nextpnr-xilinx";
+          version = "0.4.0";
+
+          srcs = [
+            (fetchgit {
+              url = "https://github.com/openXC7/nextpnr-xilinx";
+              rev = "0.4.0";
+              fetchSubmodules = true;
+              deepClone = false;
+              hash = "sha256-tKKnMJdmDjMjPqtTB6nVf9yq/ocDZ0u3EjCO9SBczIk=";
+              leaveDotGit = false;
+            })
+          ];
+
+          sourceRoot = "nextpnr-xilinx";
+
+          nativeBuildInputs
+            = [ cmake git ];
+          buildInputs
+            = [ python310Packages.boost python310 eigen ]
+            ++ (lib.optional stdenv.cc.isClang llvmPackages.openmp);
+
+          cmakeFlags =
+            [ "-DCURRENT_GIT_VERSION=${lib.substring 0 7 (lib.elemAt srcs 0).rev}"
+              "-DARCH=xilinx"
+              "-DBUILD_GUI=OFF"
+              "-DBUILD_TESTS=OFF"
+              "-DUSE_OPENMP=ON"
+            ];
+
+          doCheck = false;
+
+          meta = with lib; {
+            description = "Place and route tool for FPGAs";
+            homepage    = "https://github.com/openXC7/nextpnr-xilinx";
+            license     = licenses.isc;
+            platforms   = platforms.all;
+            maintainers = with maintainers; [ thoughtpolice ];
+          };
+        };
       };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         {
-          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl;
+          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl nextpnr-xilinx;
         });
 
       # The default package for 'nix build'. This makes sense if the
