@@ -307,6 +307,14 @@
               "-DUSE_OPENMP=ON"
             ];
 
+          installPhase = ''
+            mkdir -p $out/bin
+            cp nextpnr-xilinx bbasm $out/bin/
+            mkdir -p $out/usr/share/nextpnr/
+            cp -rv ../xilinx/external/prjxray-db $out/usr/share/nextpnr/
+            cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/usr/share/nextpnr/
+          '';
+
           doCheck = false;
 
           meta = with lib; {
