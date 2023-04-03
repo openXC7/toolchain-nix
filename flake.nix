@@ -325,12 +325,48 @@
             maintainers = with maintainers; [ thoughtpolice ];
           };
         };
+
+        prjxray = with final; stdenv.mkDerivation rec {
+          pname   = "prjxray";
+          version = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
+
+          srcs = [
+            (fetchgit {
+              url = "https://github.com/f4pga/prjxray";
+              rev = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
+              fetchSubmodules = true;
+              deepClone = false;
+              hash = "sha256-+k9Em+xX1rWPs3oATy3g1U0O6y3CATT9P42p0YCafxM=";
+              leaveDotGit = false;
+            })
+          ];
+
+          nativeBuildInputs
+            = [ cmake git ];
+          buildInputs
+            = [ python310Packages.boost python310 eigen ];
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp -v tools/xc7frames2bit tools/xc7patch $out/bin
+          '';
+
+          doCheck = false;
+
+          meta = with lib; {
+            description = "Xilinx series 7 FPGA bitstream documentation";
+            homepage    = "https://github.com/f4pga/prjxray";
+            license     = licenses.isc;
+            platforms   = platforms.all;
+            maintainers = with maintainers; [ thoughtpolice ];
+          };
+        };
       };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         {
-          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl nextpnr-xilinx;
+          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl prjxray nextpnr-xilinx;
         });
 
       # The default package for 'nix build'. This makes sense if the
