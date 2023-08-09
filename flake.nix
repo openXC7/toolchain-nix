@@ -373,5 +373,11 @@
       # flake provides only one package or there is a clear "main"
       # package.
       defaultPackage = forAllSystems (system: self.packages.${system}.yosys);
+
+      devShell = forAllSystems (system:
+          nixpkgsFor.${system}.mkShell {
+            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx ];
+          }
+      );
     };
 }
