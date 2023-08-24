@@ -312,9 +312,11 @@
           installPhase = ''
             mkdir -p $out/bin
             cp nextpnr-xilinx bbasm $out/bin/
-            mkdir -p $out/usr/share/nextpnr/
-            cp -rv ../xilinx/external/prjxray-db $out/usr/share/nextpnr/
-            cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/usr/share/nextpnr/
+            mkdir -p $out/usr/share/nextpnr/external
+            cp -rv ../xilinx/external/prjxray-db $out/usr/share/nextpnr/external/
+            cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/usr/share/nextpnr/external/
+            cp -rv ../xilinx/python/ $out/usr/share/nextpnr/python/
+            cp ../xilinx/constids.inc $out/usr/share/nextpnr
           '';
 
           doCheck = false;
@@ -343,6 +345,8 @@
             })
           ];
 
+          setupHook = ./prjxray-setup-hook.sh;
+
           nativeBuildInputs
             = [ cmake git ];
           buildInputs
@@ -351,6 +355,8 @@
           installPhase = ''
             mkdir -p $out/bin
             cp -v tools/xc7frames2bit tools/xc7patch $out/bin
+            mkdir -p $out/usr/share/python3/
+            cp -rv $srcs/prjxray $out/usr/share/python3/
           '';
 
           doCheck = false;
@@ -363,12 +369,26 @@
             maintainers = with maintainers; [ thoughtpolice ];
           };
         };
+
+        nextpnr-xilinx-chipdb = with final; stdenv.mkDerivation rec {
+          pname = "nextpnr-xilinx-chipdb";
+          version = nextpnr-xilinx.version;
+
+          srcs = [ "${nextpnr-xilinx.outPath}/usr/share/nextpnr/external/prjxray-db" ];
+
+          setupHook = ./nextpnr-chipdb-setup-hook.sh;
+
+          inherit (pkgs) coreutils findutils gnused gnugrep;
+          buildInputs = [ prjxray nextpnr-xilinx pypy3 coreutils findutils gnused gnugrep ];
+
+          builder = ./chipdb-builder.sh;          
+        };
       };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         {
-          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl prjxray nextpnr-xilinx;
+          inherit (nixpkgsFor.${system}) yosys ghdl yosys-ghdl prjxray nextpnr-xilinx nextpnr-xilinx-chipdb;
         });
 
       # The default package for 'nix build'. This makes sense if the
@@ -378,7 +398,7 @@
 
       devShell = forAllSystems (system:
           nixpkgsFor.${system}.mkShell {
-            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx ];
+            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx nextpnr-xilinx-chipdb ];
           }
       );
     };
