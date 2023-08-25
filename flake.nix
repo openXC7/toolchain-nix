@@ -278,15 +278,15 @@
         
         nextpnr-xilinx = with final; stdenv.mkDerivation rec {
           pname = "nextpnr-xilinx";
-          version = "0.4.0";
+          version = "0.5.0";
 
           srcs = [
             (fetchgit {
             url = "https://github.com/openXC7/nextpnr-xilinx";
-              rev = "0.4.0";
+              rev = version;
               fetchSubmodules = true;
               deepClone = false;
-              hash = "sha256-tKKnMJdmDjMjPqtTB6nVf9yq/ocDZ0u3EjCO9SBczIk=";
+              hash = "sha256-mDYEmq3MW1kK9HeR4PyGmKQnAzpvlOf+H66o7QTFx3k=";
               leaveDotGit = false;
             })
           ];
@@ -311,7 +311,7 @@
 
           installPhase = ''
             mkdir -p $out/bin
-            cp nextpnr-xilinx bbasm $out/bin/
+            cp nextpnr-xilinx bba/bbasm $out/bin/
             mkdir -p $out/usr/share/nextpnr/external
             cp -rv ../xilinx/external/prjxray-db $out/usr/share/nextpnr/external/
             cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/usr/share/nextpnr/external/
