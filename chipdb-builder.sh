@@ -26,7 +26,8 @@ do
       echo "unsupported architecture for footprint $i"
       exit 1
     fi
-    FOOTPRINT_DIR=`ls -d $srcs/$ARCH/$i-* | sort -n | head -1`
-    pypy3.9 $NEXTPNR_DIR/usr/share/nextpnr/python/bbaexport.py --device `echo $FOOTPRINT_DIR | tr '/' '\n' | tail -1` --bba $i.bba 2>&1
+    FIRST_SPEEDGRADE_DIR=`ls -d $srcs/$ARCH/$i-* | sort -n | head -1`
+    FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
+    pypy3.9 $NEXTPNR_DIR/usr/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
     bbasm -l $i.bba $out/$i.bin
 done
