@@ -10,13 +10,13 @@ buildInputsArray=($buildInputs)
 NEXTPNR_DIR=${buildInputsArray[1]}
 mkdir $out
 
-find $srcs/ -type d -name "*-*" -mindepth 1 -maxdepth 2 | tee $out/footprints.txt
-sed -i -e 's,.*/\(.*\)-.*$,\1,g' -e 's,\./,,g' $out/footprints.txt
-sort $out/footprints.txt -o $out/footprints.txt
-uniq $out/footprints.txt > $out/footprints
-rm $out/footprints.txt
+find $srcs/ -type d -name "*-*" -mindepth 1 -maxdepth 2 | tee $out/footprints
+sed -i -e 's,.*/\(.*\)-.*$,\1,g' -e 's,\./,,g' $out/footprints
+sort $out/footprints -o $out/footprints
+uniq $out/footprints > $out/footprints.txt
+rm $out/footprints
 
-for i in `cat $out/footprints`
+for i in `cat $out/footprints.txt`
 do
     if   [[ $i = xc7a* ]]; then ARCH=artix7 
     elif [[ $i = xc7k* ]]; then ARCH=kintex7
