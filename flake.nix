@@ -370,18 +370,54 @@
           };
         };
 
-        nextpnr-xilinx-chipdb = with final; stdenv.mkDerivation rec {
+        nextpnr-xilinx-chipdb = {
+          artiz7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "artiz7" ]; });
+          kintex7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "kintex7" ]; });
+          spartan7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "spartan7" ]; });
+          zynq7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "zynq7" ]; });
+        };
+
+        _nextpnr-xilinx-chipdb = with final; stdenv.mkDerivation rec {
           pname = "nextpnr-xilinx-chipdb";
           version = nextpnr-xilinx.version;
+          backends = [ "artiz7" "kintex7" "spartan7" "zynq7" ];
 
-          srcs = [ "${nextpnr-xilinx.outPath}/usr/share/nextpnr/external/prjxray-db" ];
-
-          setupHook = ./nextpnr-chipdb-setup-hook.sh;
+          src = "${nextpnr-xilinx.outPath}/usr/share/nextpnr/external/prjxray-db";
 
           inherit (pkgs) coreutils findutils gnused gnugrep;
           buildInputs = [ prjxray nextpnr-xilinx pypy3 coreutils findutils gnused gnugrep ];
+          buildPhase = ''
+            mkdir -p $out
+            find ${src}/ -type d -name "*-*" -mindepth 1 -maxdepth 2 |\
+              sed -e 's,.*/\(.*\)-.*$,\1,g' -e 's,\./,,g' |\
+              sort |\
+              uniq >\
+            $out/footprints.txt
 
-          builder = ./chipdb-builder.sh;          
+            cat $out/footprints.txt
+            exit 1
+
+            for i in `cat $out/footprints.txt`
+            do
+                if   [[ $i = xc7a* ]]; then ARCH=artix7 
+                elif [[ $i = xc7k* ]]; then ARCH=kintex7
+                elif [[ $i = xc7s* ]]; then ARCH=spartan7
+                elif [[ $i = xc7z* ]]; then ARCH=zynq7
+                else 
+                  echo "unsupported architecture for footprint $i"
+                  exit 1
+                fi
+
+                if [[ $ARCH != ${backends} ]]; then
+                  continue
+                fi
+
+                FIRST_SPEEDGRADE_DIR=`ls -d ${src}/$ARCH/$i-* | sort -n | head -1`
+                FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
+                pypy3.9 ${nextpnr-xilinx}/usr/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
+                bbasm -l $i.bba $out/$i.bin
+            done
+          '';
         };
       };
 
@@ -398,7 +434,7 @@
 
       devShell = forAllSystems (system:
           nixpkgsFor.${system}.mkShell {
-            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx ];
+            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx nextpnr-xilinx-chipdb ];
           }
       );
     };
