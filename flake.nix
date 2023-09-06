@@ -371,16 +371,16 @@
         };
 
         nextpnr-xilinx-chipdb = {
-          artiz7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "artiz7" ]; });
-          kintex7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "kintex7" ]; });
-          spartan7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "spartan7" ]; });
-          zynq7 = final._nextpnr-xilinx-chipdb.overrideAttrs (_: _: { backends = [ "zynq7" ]; });
+          artiz7 = _nextpnr-xilinx-chipdb;   # .override { backend = "artiz7"; };
+          kintex7 = _nextpnr-xilinx-chipdb;  # .override { backend = "kintex7"; };
+          spartan7 = _nextpnr-xilinx-chipdb; # .override { backend = "spartan7"; };
+          zynq7 = _nextpnr-xilinx-chipdb;    # .override { backend = "zynq7"; };
         };
 
-        _nextpnr-xilinx-chipdb = with final; stdenv.mkDerivation rec {
+        _nextpnr-xilinx-chipdb = with prev; stdenv.mkDerivation rec {
           pname = "nextpnr-xilinx-chipdb";
           version = nextpnr-xilinx.version;
-          backends = [ "artiz7" "kintex7" "spartan7" "zynq7" ];
+          backend = "zynq7";
 
           src = "${nextpnr-xilinx.outPath}/usr/share/nextpnr/external/prjxray-db";
 
@@ -394,9 +394,6 @@
               uniq >\
             $out/footprints.txt
 
-            cat $out/footprints.txt
-            exit 1
-
             for i in `cat $out/footprints.txt`
             do
                 if   [[ $i = xc7a* ]]; then ARCH=artix7 
@@ -408,7 +405,7 @@
                   exit 1
                 fi
 
-                if [[ $ARCH != ${backends} ]]; then
+                if [[ $ARCH != "${backend}" ]]; then
                   continue
                 fi
 
@@ -418,6 +415,12 @@
                 bbasm -l $i.bba $out/$i.bin
             done
           '';
+
+          # FIXME(jleightcap): the above buildPhase is adapated from a `builder`; which combines the process of
+          # compiling assets along with installing those assets to `$out`.
+          # These steps should be untangled, ideally - for now just use the buildPhase and disable the (empty)
+          # installPhase.
+          dontInstall = true;
         };
       };
 
