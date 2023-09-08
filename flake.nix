@@ -391,7 +391,7 @@
 
       devShell = forAllSystems (system:
           nixpkgsFor.${system}.mkShell {
-            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx nextpnr-xilinx-chipdb ];
+            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx ];
           }
       );
     };
