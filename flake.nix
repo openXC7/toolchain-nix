@@ -370,18 +370,11 @@
           };
         };
 
-        nextpnr-xilinx-chipdb = with final; stdenv.mkDerivation rec {
-          pname = "nextpnr-xilinx-chipdb";
-          version = nextpnr-xilinx.version;
-
-          srcs = [ "${nextpnr-xilinx.outPath}/usr/share/nextpnr/external/prjxray-db" ];
-
-          setupHook = ./nextpnr-chipdb-setup-hook.sh;
-
-          inherit (pkgs) coreutils findutils gnused gnugrep;
-          buildInputs = [ prjxray nextpnr-xilinx pypy3 coreutils findutils gnused gnugrep ];
-
-          builder = ./chipdb-builder.sh;          
+        nextpnr-xilinx-chipdb = {
+          artiz7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "artiz7"; };
+          kintex7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "kintex7"; };
+          spartan7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "spartan7"; };
+          zynq7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "zynq7"; };
         };
       };
 
@@ -398,7 +391,7 @@
 
       devShell = forAllSystems (system:
           nixpkgsFor.${system}.mkShell {
-            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx ];
+            buildInputs = with nixpkgsFor.${system}; [ yosys ghdl yosys-ghdl prjxray nextpnr-xilinx nextpnr-xilinx-chipdb ];
           }
       );
     };
