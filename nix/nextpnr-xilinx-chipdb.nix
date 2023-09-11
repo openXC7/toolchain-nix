@@ -17,6 +17,8 @@ stdenv.mkDerivation rec {
       uniq >\
     $out/footprints.txt
 
+    touch $out/built-footprints.txt
+
     for i in `cat $out/footprints.txt`
     do
         if   [[ $i = xc7a* ]]; then ARCH=artix7 
@@ -36,7 +38,10 @@ stdenv.mkDerivation rec {
         FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
         pypy3.9 ${nextpnr-xilinx}/usr/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
         bbasm -l $i.bba $out/$i.bin
+        echo $i >> $out/built-footprints.txt
     done
+
+    mv -f $out/built-footprints.txt $out/footprints.txt
   '';
 
   # FIXME(jleightcap): the above buildPhase is adapated from a `builder`; which combines the process of
