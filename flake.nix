@@ -371,7 +371,7 @@
         };
 
         nextpnr-xilinx-chipdb = {
-          artiz7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "artiz7"; };
+          artix7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "artix7"; };
           kintex7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "kintex7"; };
           spartan7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "spartan7"; };
           zynq7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix { backend = "zynq7"; };
