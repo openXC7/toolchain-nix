@@ -278,7 +278,7 @@
         
         nextpnr-xilinx = with final; stdenv.mkDerivation rec {
           pname = "nextpnr-xilinx";
-          version = "0.5.0";
+          version = "0.5.1";
 
           srcs = [
             (fetchgit {
@@ -286,7 +286,7 @@
               rev = version;
               fetchSubmodules = true;
               deepClone = false;
-              hash = "sha256-mDYEmq3MW1kK9HeR4PyGmKQnAzpvlOf+H66o7QTFx3k=";
+              hash = "sha256-jgWWUCTEYyXePmoPh8MF7ySRoS2tMwsTiUgEOvXOhYU=";
               leaveDotGit = false;
             })
           ];
