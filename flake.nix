@@ -23,140 +23,52 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
       # Nixpkgs instantiated for supported system types.
-      nixpkgsFor = forAllSystems (system:
-        import nixpkgs {
-          inherit system;
-          overlays = [ self.overlay ];
-        });
-
-      lib = nixpkgs.lib;
-
+      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     in {
-      # A Nixpkgs overlay.
-      overlay = final: prev: rec {
-        ghdl = prev.ghdl;
 
-        abc-verifier = prev.abc-verifier.overrideAttrs (_: rec {
-          version = "yosys-0.17";
-          src = final.fetchFromGitHub {
-            owner = "yosyshq";
-            repo = "abc";
-            rev = version;
-            hash = "sha256-+1UcYjK2mvhlTHl6lVCcj5q+1D8RUTquHaajSl5NuJg=";
-          };
-        });
+      # Provide some binary packages for selected system types.
+      packages = forAllSystems (system:
+        let
+          pkgs = nixpkgsFor.${system};
+          inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
+        in rec {
+          default = yosys;
 
-        yosys-ghdl = prev.yosys-ghdl;
+          ghdl = pkgs.ghdl;
 
-        yosys = with final;
-          stdenv.mkDerivation rec {
-            pname = "yosys";
+          abc-verifier = pkgs.abc-verifier.overrideAttrs (_: rec {
+            version = "yosys-0.17";
+            src = fetchFromGitHub {
+              owner = "yosyshq";
+              repo = "abc";
+              rev = "09a7e6dac739133a927ae7064d319068ab927f90" # == version
+              ;
+              hash = "sha256-+1UcYjK2mvhlTHl6lVCcj5q+1D8RUTquHaajSl5NuJg=";
+            };
+            passthru.rev = src.rev;
+          });
+
+          yosys-ghdl = pkgs.yosys-ghdl;
+
+          yosys = (pkgs.yosys.overrideAttrs (prev: rec {
             version = "0.17";
 
             src = fetchFromGitHub {
-              owner = "YosysHQ";
+              owner = "yosyshq";
               repo = "yosys";
-              rev = "${pname}-${version}";
+              rev = "${prev.pname}-${version}";
               hash = "sha256-IjT+G3figWe32tTkIzv/RFjy0GBaNaZMQ1GA8mRHkio=";
             };
 
-            enableParallelBuilding = true;
-            nativeBuildInputs = [ pkg-config bison flex ];
-            buildInputs = [
-              tcl
-              readline
-              libffi
-              zlib
-              (python3.withPackages (pp: with pp; [ click ]))
-            ];
+            doCheck = true; # FIXME(ac): can we turn these back on?
 
-            makeFlags = [ "PREFIX=${placeholder "out"}" ];
-
-            patches = [
-              ./plugin-search-dirs.patch
-              ./fix-clang-build.patch # see https://github.com/YosysHQ/yosys/issues/2011
-            ];
-
-            postPatch = ''
-              substituteInPlace ./Makefile \
-                --replace 'echo UNKNOWN' 'echo ${
-                  builtins.substring 0 10 src.rev
-                }'
-
-              chmod +x ./misc/yosys-config.in
-              patchShebangs tests ./misc/yosys-config.in
-            '';
-
-            preBuild =
-              let shortAbcRev = builtins.substring 0 7 abc-verifier.rev;
-              in ''
-                chmod -R u+w .
-                make config-${
-                  if stdenv.cc.isClang or false then "clang" else "gcc"
-                }
-                echo 'ABCEXTERNAL = ${abc-verifier}/bin/abc' >> Makefile.conf
-
-                cat Makefile
-
-                if ! grep -q "ABCREV = ${shortAbcRev}" Makefile; then
-                  echo "ERROR: yosys isn't compatible with the provided abc (${shortAbcRev}), failing."
-                  exit 1
-                fi
-
-                if ! grep -q "YOSYS_VER := $version" Makefile; then
-                  echo "ERROR: yosys version in Makefile isn't equivalent to version of the nix package (allegedly ${version}), failing."
-                  exit 1
-                fi
-              '';
-
-            checkTarget = "test";
-            doCheck = false;
-            checkInputs = [ verilog ];
-
-            # Internally, yosys knows to use the specified hardcoded ABCEXTERNAL binary.
-            # But other tools (like mcy or symbiyosys) can't know how yosys was built, so
-            # they just assume that 'yosys-abc' is available -- but it's not installed
-            # when using ABCEXTERNAL
-            #
-            # add a symlink to fake things so that both variants work the same way. this
-            # is also needed at build time for the test suite.
-            postBuild = "ln -sfv ${abc-verifier}/bin/abc ./yosys-abc";
-            postInstall = "ln -sfv ${abc-verifier}/bin/abc $out/bin/yosys-abc";
-
-            setupHook = ./yosys-setup-hook.sh;
-
-            passthru = let
-              withPlugins = plugins:
-                let
-                  paths = lib.closePropagation plugins;
-                  module_flags = with builtins;
-                    concatStringsSep " "
-                    (map (n: "--add-flags -m --add-flags ${n.plugin}") plugins);
-                in lib.appendToName "with-plugins" (lib.symlinkJoin {
-                  inherit (yosys) name;
-                  paths = paths ++ [ yosys ];
-                  nativeBuildInputs = [ makeWrapper ];
-                  postBuild = ''
-                    wrapProgram $out/bin/yosys \
-                      --set NIX_YOSYS_PLUGIN_DIRS $out/share/yosys/plugins \
-                      ${module_flags}
-                  '';
-                });
-
+            passthru = {
+              inherit (prev) withPlugins;
               allPlugins = { ghdl = yosys-ghdl; };
-            in { inherit withPlugins allPlugins; };
-
-            meta = with lib; {
-              description = "Open RTL synthesis framework and tools";
-              homepage = "https://yosyshq.net/yosys/";
-              license = licenses.isc;
-              platforms = platforms.all;
-              maintainers = with maintainers; [ thoughtpolice ];
             };
-          };
+          })).override { inherit abc-verifier; };
 
-        nextpnr-xilinx = with final;
-          stdenv.mkDerivation rec {
+          nextpnr-xilinx = stdenv.mkDerivation rec {
             pname = "nextpnr-xilinx";
             version = "0.5.1";
 
@@ -173,8 +85,9 @@
 
             sourceRoot = "nextpnr-xilinx";
 
-            nativeBuildInputs = [ cmake git ];
-            buildInputs = [ python310Packages.boost python310 eigen ]
+            nativeBuildInputs = with pkgs; [ cmake git ];
+            buildInputs = with pkgs;
+              [ python310Packages.boost python310 eigen ]
               ++ (lib.optional stdenv.cc.isClang llvmPackages.openmp);
 
             setupHook = ./nextpnr-setup-hook.sh;
@@ -210,8 +123,7 @@
             };
           };
 
-        prjxray = with final;
-          stdenv.mkDerivation rec {
+          prjxray = stdenv.mkDerivation rec {
             pname = "prjxray";
             version = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
 
@@ -228,8 +140,12 @@
 
             setupHook = ./prjxray-setup-hook.sh;
 
-            nativeBuildInputs = [ cmake git ];
-            buildInputs = [ python310Packages.boost python310 eigen ];
+            nativeBuildInputs = with pkgs; [ cmake git ];
+            buildInputs = with pkgs; [
+              python310Packages.boost
+              python310
+              eigen
+            ];
 
             installPhase = ''
               mkdir -p $out/bin
@@ -250,33 +166,19 @@
           };
 
         nextpnr-xilinx-chipdb = {
-          artix7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+          artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
             backend = "artix7";
           };
-          kintex7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+          kintex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
             backend = "kintex7";
           };
-          spartan7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+          spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
             backend = "spartan7";
           };
-          zynq7 = prev.callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+          zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
             backend = "zynq7";
           };
-        };
-      };
-
-      # Provide some binary packages for selected system types.
-      packages = forAllSystems (system: {
-        inherit (nixpkgsFor.${system})
-          yosys ghdl yosys-ghdl prjxray nextpnr-xilinx
-          nextpnr-xilinx-chipdb # FIXME: testing
-          abc-verifier;
-      });
-
-      # The default package for 'nix build'. This makes sense if the
-      # flake provides only one package or there is a clear "main"
-      # package.
-      defaultPackage = forAllSystems (system: self.packages.${system}.yosys);
+        });
 
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
