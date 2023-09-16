@@ -72,18 +72,14 @@
             pname = "nextpnr-xilinx";
             version = "0.5.1";
 
-            srcs = [
-              (fetchgit {
-                url = "https://github.com/openXC7/nextpnr-xilinx";
-                rev = version;
-                fetchSubmodules = true;
-                deepClone = false;
-                hash = "sha256-jgWWUCTEYyXePmoPh8MF7ySRoS2tMwsTiUgEOvXOhYU=";
-                leaveDotGit = false;
-              })
-            ];
-
-            sourceRoot = "nextpnr-xilinx";
+            src = fetchFromGitHub {
+              owner = "openXC7";
+              repo = "nextpnr-xilinx";
+              rev = version;
+              hash = "sha256-mDYEmq3MW1kK9HeR4PyGmKQnAzpvlOf+H66o7QTFx3k=";
+              fetchSubmodules =
+                true; # FIXME(ac): false is default in fetchFromGitHub, but check if we actually need this
+            };
 
             nativeBuildInputs = with pkgs; [ cmake git ];
             buildInputs = with pkgs;
@@ -93,9 +89,7 @@
             setupHook = ./nextpnr-setup-hook.sh;
 
             cmakeFlags = [
-              "-DCURRENT_GIT_VERSION=${
-                lib.substring 0 7 (lib.elemAt srcs 0).rev
-              }"
+              "-DCURRENT_GIT_VERSION=${lib.substring 0 7 src.rev}"
               "-DARCH=xilinx"
               "-DBUILD_GUI=OFF"
               "-DBUILD_TESTS=OFF"
@@ -105,11 +99,11 @@
             installPhase = ''
               mkdir -p $out/bin
               cp nextpnr-xilinx bba/bbasm $out/bin/
-              mkdir -p $out/usr/share/nextpnr/external
-              cp -rv ../xilinx/external/prjxray-db $out/usr/share/nextpnr/external/
-              cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/usr/share/nextpnr/external/
-              cp -rv ../xilinx/python/ $out/usr/share/nextpnr/python/
-              cp ../xilinx/constids.inc $out/usr/share/nextpnr
+              mkdir -p $out/share/nextpnr/external
+              cp -rv ../xilinx/external/prjxray-db $out/share/nextpnr/external/
+              cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/share/nextpnr/external/
+              cp -rv ../xilinx/python/ $out/share/nextpnr/python/
+              cp ../xilinx/constids.inc $out/share/nextpnr
             '';
 
             doCheck = false;
