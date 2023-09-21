@@ -77,14 +77,13 @@
               repo = "nextpnr-xilinx";
               rev = version;
               hash = "sha256-mDYEmq3MW1kK9HeR4PyGmKQnAzpvlOf+H66o7QTFx3k=";
-              fetchSubmodules =
-                true; # FIXME(ac): false is default in fetchFromGitHub, but check if we actually need this
+              fetchSubmodules = true;
             };
 
             nativeBuildInputs = with pkgs; [ cmake git ];
             buildInputs = with pkgs;
               [ python310Packages.boost python310 eigen ]
-              ++ (lib.optional stdenv.cc.isClang llvmPackages.openmp);
+              ++ (lib.optional stdenv.cc.isClang [ llvmPackages.openmp ]);
 
             setupHook = ./nextpnr-setup-hook.sh;
 
@@ -106,6 +105,7 @@
               cp ../xilinx/constids.inc $out/share/nextpnr
             '';
 
+            # FIXME(jl): why are these disabled? if unreasonable, should leave a comment
             doCheck = false;
 
             meta = with lib; {
@@ -113,7 +113,6 @@
               homepage = "https://github.com/openXC7/nextpnr-xilinx";
               license = licenses.isc;
               platforms = platforms.all;
-              maintainers = with maintainers; [ thoughtpolice ];
             };
           };
 
@@ -121,16 +120,13 @@
             pname = "prjxray";
             version = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
 
-            srcs = [
-              (fetchgit {
-                url = "https://github.com/f4pga/prjxray";
-                rev = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
-                fetchSubmodules = true;
-                deepClone = false;
-                hash = "sha256-+k9Em+xX1rWPs3oATy3g1U0O6y3CATT9P42p0YCafxM=";
-                leaveDotGit = false;
-              })
-            ];
+            src = fetchFromGitHub {
+              owner = "f4pga";
+              repo = "prjxray";
+              rev = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
+              fetchSubmodules = true;
+              hash = "sha256-+k9Em+xX1rWPs3oATy3g1U0O6y3CATT9P42p0YCafxM=";
+            };
 
             setupHook = ./prjxray-setup-hook.sh;
 
@@ -155,7 +151,6 @@
               homepage = "https://github.com/f4pga/prjxray";
               license = licenses.isc;
               platforms = platforms.all;
-              maintainers = with maintainers; [ thoughtpolice ];
             };
           };
 
