@@ -50,6 +50,8 @@
 
           yosys-ghdl = pkgs.yosys-ghdl;
 
+          # FIXME(jl): we're not sure why this yosys derivaiton is defined here,
+          # - is it the required version of yosys to use with nextpnr-xilinx?
           yosys = (pkgs.yosys.overrideAttrs (prev: rec {
             version = "0.17";
 
@@ -68,107 +70,34 @@
             };
           })).override { inherit abc-verifier; };
 
-          nextpnr-xilinx = stdenv.mkDerivation rec {
-            pname = "nextpnr-xilinx";
-            version = "0.5.1";
+          nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
 
-            src = fetchFromGitHub {
-              owner = "openXC7";
-              repo = "nextpnr-xilinx";
-              rev = version;
-              hash = "sha256-mDYEmq3MW1kK9HeR4PyGmKQnAzpvlOf+H66o7QTFx3k=";
-              fetchSubmodules = true;
+          prjxray = callPackage ./nix/prjxray.nix { };
+
+          nextpnr-xilinx-chipdb = {
+            artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+              backend = "artix7";
             };
-
-            nativeBuildInputs = with pkgs; [ cmake git ];
-            buildInputs = with pkgs;
-              [ python310Packages.boost python310 eigen ]
-              ++ (lib.optional stdenv.cc.isClang [ llvmPackages.openmp ]);
-
-            setupHook = ./nextpnr-setup-hook.sh;
-
-            cmakeFlags = [
-              "-DCURRENT_GIT_VERSION=${lib.substring 0 7 src.rev}"
-              "-DARCH=xilinx"
-              "-DBUILD_GUI=OFF"
-              "-DBUILD_TESTS=OFF"
-              "-DUSE_OPENMP=ON"
-            ];
-
-            installPhase = ''
-              mkdir -p $out/bin
-              cp nextpnr-xilinx bba/bbasm $out/bin/
-              mkdir -p $out/share/nextpnr/external
-              cp -rv ../xilinx/external/prjxray-db $out/share/nextpnr/external/
-              cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/share/nextpnr/external/
-              cp -rv ../xilinx/python/ $out/share/nextpnr/python/
-              cp ../xilinx/constids.inc $out/share/nextpnr
-            '';
-
-            # FIXME(jl): why are these disabled? if unreasonable, should leave a comment
-            doCheck = false;
-
-            meta = with lib; {
-              description = "Place and route tool for FPGAs";
-              homepage = "https://github.com/openXC7/nextpnr-xilinx";
-              license = licenses.isc;
-              platforms = platforms.all;
+            kintex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+              backend = "kintex7";
             };
-          };
-
-          prjxray = stdenv.mkDerivation rec {
-            pname = "prjxray";
-            version = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
-
-            src = fetchFromGitHub {
-              owner = "f4pga";
-              repo = "prjxray";
-              rev = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
-              fetchSubmodules = true;
-              hash = "sha256-+k9Em+xX1rWPs3oATy3g1U0O6y3CATT9P42p0YCafxM=";
+            spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+              backend = "spartan7";
             };
-
-            setupHook = ./prjxray-setup-hook.sh;
-
-            nativeBuildInputs = with pkgs; [ cmake git ];
-            buildInputs = with pkgs; [
-              python310Packages.boost
-              python310
-              eigen
-            ];
-
-            installPhase = ''
-              mkdir -p $out/bin
-              cp -v tools/xc7frames2bit tools/xc7patch $out/bin
-              mkdir -p $out/usr/share/python3/
-              cp -rv $srcs/prjxray $out/usr/share/python3/
-            '';
-
-            doCheck = false;
-
-            meta = with lib; {
-              description = "Xilinx series 7 FPGA bitstream documentation";
-              homepage = "https://github.com/f4pga/prjxray";
-              license = licenses.isc;
-              platforms = platforms.all;
+            zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+              backend = "zynq7";
             };
-          };
-
-        nextpnr-xilinx-chipdb = {
-          artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
-            backend = "artix7";
-          };
-          kintex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
-            backend = "kintex7";
-          };
-          spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
-            backend = "spartan7";
-          };
-          zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
-            backend = "zynq7";
           };
         });
 
+      # FIXME(jl): what is the actual intended workflow with this dev shell?
+      # what's the intended use case of this, should it contain all packages for a pipeline?
+      # are these all mutually dependent on one another, or does it make sense to use any/some/all of these
+      # independently
+      #
+      # for example, we can build and run `nextpnr-xilinx` on its own independent of the override yosys version.
+      # is this at all useful, or is this tool dependent on this version of yosys, and otherwise useless?
+      # in which case, consider making it a hard runtime dependency or something that is enabled by default
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = with nixpkgsFor.${system}; [
