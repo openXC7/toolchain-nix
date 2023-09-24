@@ -36,9 +36,6 @@ stdenv.mkDerivation rec {
     cp ../xilinx/constids.inc $out/share/nextpnr
   '';
 
-  # FIXME(jl): why are these disabled? if unreasonable, should leave a comment
-  doCheck = false;
-
   meta = with lib; {
     description = "Place and route tool for FPGAs";
     homepage = "https://github.com/openXC7/nextpnr-xilinx";

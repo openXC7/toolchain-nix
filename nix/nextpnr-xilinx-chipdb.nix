@@ -44,7 +44,7 @@ stdenv.mkDerivation rec {
     mv -f $out/built-footprints.txt $out/footprints.txt
   '';
 
-  # FIXME(jleightcap): the above buildPhase is adapated from a `builder`; which combines the process of
+  # TODO(jleightcap): the above buildPhase is adapated from a `builder`; which combines the process of
   # compiling assets along with installing those assets to `$out`.
   # These steps should be untangled, ideally - for now just use the buildPhase and disable the (empty)
   # installPhase.

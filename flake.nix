@@ -50,8 +50,7 @@
 
           yosys-ghdl = pkgs.yosys-ghdl;
 
-          # FIXME(jl): we're not sure why this yosys derivaiton is defined here,
-          # - is it the required version of yosys to use with nextpnr-xilinx?
+          # override yosys with version suitable for ingest by nextpnr-xilinx.
           yosys = (pkgs.yosys.overrideAttrs (prev: rec {
             version = "0.17";
 
@@ -62,7 +61,7 @@
               hash = "sha256-IjT+G3figWe32tTkIzv/RFjy0GBaNaZMQ1GA8mRHkio=";
             };
 
-            doCheck = true; # FIXME(ac): can we turn these back on?
+            doCheck = true;
 
             passthru = {
               inherit (prev) withPlugins;
@@ -90,14 +89,7 @@
           };
         });
 
-      # FIXME(jl): what is the actual intended workflow with this dev shell?
-      # what's the intended use case of this, should it contain all packages for a pipeline?
-      # are these all mutually dependent on one another, or does it make sense to use any/some/all of these
-      # independently
-      #
-      # for example, we can build and run `nextpnr-xilinx` on its own independent of the override yosys version.
-      # is this at all useful, or is this tool dependent on this version of yosys, and otherwise useless?
-      # in which case, consider making it a hard runtime dependency or something that is enabled by default
+      # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = with self.packages.${system}; [
