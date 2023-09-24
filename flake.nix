@@ -100,7 +100,7 @@
       # in which case, consider making it a hard runtime dependency or something that is enabled by default
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
-          buildInputs = with nixpkgsFor.${system}; [
+          buildInputs = with self.packages.${system}; [
             yosys
             ghdl
             yosys-ghdl
