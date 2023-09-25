@@ -32,8 +32,6 @@
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
         in rec {
-          default = yosys;
-
           ghdl = pkgs.ghdl;
 
           abc-verifier = pkgs.abc-verifier.overrideAttrs (_: rec {
