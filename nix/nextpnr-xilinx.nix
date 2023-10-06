@@ -16,8 +16,6 @@ stdenv.mkDerivation rec {
   buildInputs = [ python310Packages.boost python310 eigen ]
     ++ (lib.optional stdenv.cc.isClang [ llvmPackages.openmp ]);
 
-  setupHook = ./nextpnr-setup-hook.sh;
-
   cmakeFlags = [
     "-DCURRENT_GIT_VERSION=${lib.substring 0 7 src.rev}"
     "-DARCH=xilinx"

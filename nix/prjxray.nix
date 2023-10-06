@@ -12,8 +12,6 @@ stdenv.mkDerivation rec {
     hash = "sha256-+k9Em+xX1rWPs3oATy3g1U0O6y3CATT9P42p0YCafxM=";
   };
 
-  setupHook = ./prjxray-setup-hook.sh;
-
   nativeBuildInputs = [ cmake git ];
   buildInputs = [ python310Packages.boost python310 eigen ];
 

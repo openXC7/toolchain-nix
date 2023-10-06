@@ -107,6 +107,12 @@
             nextpnr-xilinx
             fasm
           ];
+
+          shellHook = nixpkgs.lib.concatStrings [ ''
+    export NEXTPNR_XILINX_DIR='' self.packages.${system}.nextpnr-xilinx.outPath ''
+
+    export PRJXRAY_PYTHON_DIR='' self.packages.${system}.prjxray.outPath "/usr/share/python3/"
+    ];
         });
     };
 }
