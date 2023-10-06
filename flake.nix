@@ -105,6 +105,7 @@
             yosys-ghdl
             prjxray
             nextpnr-xilinx
+            fasm
           ];
         });
     };
