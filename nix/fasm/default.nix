@@ -33,7 +33,9 @@ buildPythonPackage rec {
     hash = "sha256-oC6vSpI9u8gEA2C85k00WdXzpH5GxeqtfNqqMduW5Jg=";
   };
 
-  patches = map fetchPatchFromAur [
+  patches = [
+    ./textx-default.patch
+  ] ++ (map fetchPatchFromAur [
     {
       name = "0001-cmake-install-parse_fasm.so.patch";
       sha256 = "sha256-ZEq/hTXjCIkVkWhgCYWtRe3wftdYMNwhNC4KNnBI2Dc=";
@@ -70,7 +72,7 @@ buildPythonPackage rec {
       name = "0009-Use-cmake-directly-instead-of-letting-setup.py-try-t.patch";
       sha256 = "sha256-/Ay+XjTE7MPcQg5yeo7zuKE2T/tE/P1sIMxgRYeSWNI=";
     }
-  ];
+  ]);
 
 
   nativeBuildInputs = [
