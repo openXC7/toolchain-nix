@@ -18,6 +18,8 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin
     cp -v tools/xc7frames2bit tools/xc7patch $out/bin
+    cp -v $srcs/utils/fasm2frames.py $out/bin/fasm2frames
+    chmod 755 $out/bin/fasm2frames
     mkdir -p $out/usr/share/python3/
     cp -rv $srcs/prjxray $out/usr/share/python3/
   '';

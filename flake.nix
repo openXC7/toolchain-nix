@@ -99,19 +99,26 @@
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
-          buildInputs = with self.packages.${system}; [
+          buildInputs = with self.packages.${system};
+                        with nixpkgsFor.${system}.python310Packages; [
             yosys
             ghdl
             yosys-ghdl
             prjxray
             nextpnr-xilinx
             fasm
+            pyyaml
+            simplejson
+            intervaltree
           ];
 
           shellHook = nixpkgs.lib.concatStrings [ ''
     export NEXTPNR_XILINX_DIR='' self.packages.${system}.nextpnr-xilinx.outPath ''
 
-    export PRJXRAY_PYTHON_DIR='' self.packages.${system}.prjxray.outPath "/usr/share/python3/"
+    export PRJXRAY_PYTHON_DIR='' self.packages.${system}.prjxray.outPath "/usr/share/python3/" ''
+
+    export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR
+    ''
     ];
         });
     };
