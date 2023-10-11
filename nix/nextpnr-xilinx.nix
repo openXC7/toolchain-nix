@@ -2,13 +2,13 @@
 , llvmPackages, ... }:
 stdenv.mkDerivation rec {
   pname = "nextpnr-xilinx";
-  version = "0.5.0";
+  version = "0.6.0";
 
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr-xilinx";
     rev = version;
-    hash = "sha256-mDYEmq3MW1kK9HeR4PyGmKQnAzpvlOf+H66o7QTFx3k=";
+    hash = "sha256-6j+dW8Vouw7zQwGe+JUCgqPCv3hSV58y3shIcWU5hyQ=";
     fetchSubmodules = true;
   };
 
