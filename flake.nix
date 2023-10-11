@@ -100,25 +100,31 @@
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = with self.packages.${system};
-                        with nixpkgsFor.${system}.python310Packages; [
+                        with nixpkgsFor.${system}; [
             yosys
             ghdl
             yosys-ghdl
             prjxray
             nextpnr-xilinx
+            openfpgaloader
             fasm
-            pyyaml
-            simplejson
-            intervaltree
+            pypy39
+            python310Packages.pyyaml
+            python310Packages.textx
+            python310Packages.simplejson
+            python310Packages.intervaltree
           ];
 
           shellHook = nixpkgs.lib.concatStrings [ ''
     export NEXTPNR_XILINX_DIR='' self.packages.${system}.nextpnr-xilinx.outPath ''
 
-    export PRJXRAY_PYTHON_DIR='' self.packages.${system}.prjxray.outPath "/usr/share/python3/" ''
+    export NEXTPNR_PYTHON_DIR=$NEXTPNR_XILINX_DIR/share/nextpnr/python
 
-    export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR
-    ''
+    export PRJXRAY_DB_DIR='' self.packages.${system}.nextpnr-xilinx.outPath ''/share/nextpnr/external/prjxray-db
+
+    export PRJXRAY_PYTHON_DIR='' self.packages.${system}.prjxray.outPath ''/usr/share/python3/
+
+    export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:'' self.packages.${system}.fasm.outPath "/lib/python3.10/site-packages/"
     ];
         });
     };
