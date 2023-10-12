@@ -115,17 +115,14 @@
             python310Packages.intervaltree
           ];
 
-          shellHook = let mypkgs = self.packages.${system}; in nixpkgs.lib.concatStrings [ ''
-    export NEXTPNR_XILINX_DIR='' mypkgs.nextpnr-xilinx.outPath ''
-
-    export NEXTPNR_PYTHON_DIR=$NEXTPNR_XILINX_DIR/share/nextpnr/python
-
-    export PRJXRAY_DB_DIR='' mypkgs.nextpnr-xilinx.outPath ''/share/nextpnr/external/prjxray-db
-
-    export PRJXRAY_PYTHON_DIR='' mypkgs.prjxray.outPath ''/usr/share/python3/
-
-    export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:'' mypkgs.fasm.outPath "/lib/python3.10/site-packages/"
-    ];
-        });
+          shellHook = let mypkgs = self.packages.${system}; in nixpkgs.lib.concatStrings [
+            "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
+            "export NEXTPNR_PYTHON_DIR=$NEXTPNR_XILINX_DIR/share/nextpnr/python\n"
+            "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+            "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
+            "export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:" mypkgs.fasm.outPath "/lib/python3.10/site-packages/\n"
+          ];
+        }
+      );
     };
 }
