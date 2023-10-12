@@ -115,12 +115,16 @@
             python310Packages.intervaltree
           ];
 
-          shellHook = let mypkgs = self.packages.${system}; in nixpkgs.lib.concatStrings [
-            "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
-            "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
-            "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
-            "export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:" mypkgs.fasm.outPath "/lib/python3.10/site-packages/\n"
-          ];
+          shellHook =
+            let mypkgs  = self.packages.${system};
+                nixpkgs = nixpkgsFor.${system};
+            in nixpkgs.lib.concatStrings [
+              "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
+              "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+              "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
+              "export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:" mypkgs.fasm.outPath "/lib/python3.10/site-packages/\n"
+              "export PYPY3=" nixpkgs.pypy39.outPath "/bin/pypy3.9"
+            ];
         }
       );
     };
