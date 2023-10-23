@@ -2,13 +2,13 @@
 , llvmPackages, ... }:
 stdenv.mkDerivation rec {
   pname = "nextpnr-xilinx";
-  version = "0.6.0";
+  version = "0.6.1";
 
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr-xilinx";
-    rev = version;
-    hash = "sha256-6j+dW8Vouw7zQwGe+JUCgqPCv3hSV58y3shIcWU5hyQ=";
+    rev = "4680cfd44ddac7c15e96f5a3b04cebbd354de389";
+    hash = "sha256-nM0BBSr7Og0TPcIklbe8nFi/MCiwd5tn5fDl7+ybqXc=";
     fetchSubmodules = true;
   };
 
@@ -26,7 +26,7 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out/bin
-    cp nextpnr-xilinx bba/bbasm $out/bin/
+    cp nextpnr-xilinx bbasm $out/bin/
     mkdir -p $out/share/nextpnr/external
     cp -rv ../xilinx/external/prjxray-db $out/share/nextpnr/external/
     cp -rv ../xilinx/external/nextpnr-xilinx-meta $out/share/nextpnr/external/
