@@ -1,7 +1,7 @@
 ## How to use
 
-1. Install the nix package manager on your Linux distribution of choice (or use NixOS):
-   See https://nixos.org/download.html :
+1. Install the nix package manager on your Linux distribution of choice 
+   (or use NixOS, see https://nixos.org/download.html):
 
 ```
 $ sh <(curl -L https://nixos.org/nix/install) --daemon
@@ -15,5 +15,13 @@ experimental-features = nix-command flakes
 
 3. Then you will get a development shell with the complete toolchain with:
 ```
-# nix develop github:openxc7/toolchain-nix
+$ nix develop github:openxc7/toolchain-nix
+```
+
+4. Compile and load a demo project onto an FPGA:
+```
+$ git clone https://github.com/openXC7/demo-projects
+$ cd demo-projects/blinky-qmtec
+$ make
+$ make program
 ```
