@@ -21,7 +21,7 @@ $ nix develop github:openxc7/toolchain-nix
 4. Compile and load a demo project onto an FPGA:
 ```
 $ git clone https://github.com/openXC7/demo-projects
-$ cd demo-projects/blinky-qmtec
+$ cd demo-projects/blinky-qmtech
 $ make
 $ make program
 ```
