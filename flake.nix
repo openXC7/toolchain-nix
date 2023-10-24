@@ -99,8 +99,8 @@
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
-          buildInputs = with self.packages.${system};
-                        with nixpkgsFor.${system}; [
+          buildInputs = with nixpkgsFor.${system};
+                        with self.packages.${system}; [
             yosys
             ghdl
             yosys-ghdl
