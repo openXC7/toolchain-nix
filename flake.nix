@@ -99,13 +99,13 @@
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
-          buildInputs = with nixpkgsFor.${system};
-                        with self.packages.${system}; [
+          buildInputs = (with self.packages.${system}; [
             yosys
             ghdl
             yosys-ghdl
             prjxray
             nextpnr-xilinx
+          ]) ++ (with nixpkgsFor.${system}; [
             openfpgaloader
             fasm
             pypy39
@@ -113,7 +113,7 @@
             python310Packages.textx
             python310Packages.simplejson
             python310Packages.intervaltree
-          ];
+          ]);
 
           shellHook =
             let mypkgs  = self.packages.${system};
