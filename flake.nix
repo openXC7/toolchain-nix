@@ -59,7 +59,10 @@
               hash = "sha256-IjT+G3figWe32tTkIzv/RFjy0GBaNaZMQ1GA8mRHkio=";
             };
 
-            doCheck = true;
+            # for upstream packaging this should be true, but for the users
+            # of this repository, who just want to install the toolchain,
+            # it is very redundant to run these checks, which take a long time
+            doCheck = false;
 
             passthru = {
               inherit (prev) withPlugins;
