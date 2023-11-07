@@ -64,6 +64,7 @@
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = (with self.packages.${system}; [
+            fasm
             prjxray
             nextpnr-xilinx
           ]) ++ (with nixpkgsFor.${system}; [
@@ -71,7 +72,6 @@
             ghdl
             yosys-ghdl
             openfpgaloader
-            fasm
             pypy39
             python310Packages.pyyaml
             python310Packages.textx
