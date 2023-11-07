@@ -87,7 +87,7 @@
               "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
               "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
-              "export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:" mypkgs.fasm.outPath "/lib/python3.10/site-packages/\n"
+              "export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:" mypkgs.fasm.outPath "/lib/python3.11/site-packages/\n"
               "export PYPY3=" nixpkgs.pypy39.outPath "/bin/pypy3.9"
             ];
         }
