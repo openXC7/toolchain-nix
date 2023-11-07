@@ -3,7 +3,7 @@
   nixConfig.bash-prompt = "[nix(openXC7)] ";
 
   # Nixpkgs / NixOS version to use.
-  inputs.nixpkgs.url = "nixpkgs/nixos-22.11";
+  inputs.nixpkgs.url = "nixpkgs/nixos-23.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   outputs = { self, nixpkgs, flake-utils, ... }:
     let
@@ -32,44 +32,6 @@
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
         in rec {
-          ghdl = pkgs.ghdl;
-
-          abc-verifier = pkgs.abc-verifier.overrideAttrs (_: rec {
-            version = "yosys-0.17";
-            src = fetchFromGitHub {
-              owner = "yosyshq";
-              repo = "abc";
-              rev = "09a7e6dac739133a927ae7064d319068ab927f90" # == version
-              ;
-              hash = "sha256-+1UcYjK2mvhlTHl6lVCcj5q+1D8RUTquHaajSl5NuJg=";
-            };
-            passthru.rev = src.rev;
-          });
-
-          yosys-ghdl = pkgs.yosys-ghdl;
-
-          # override yosys with version suitable for ingest by nextpnr-xilinx.
-          yosys = (pkgs.yosys.overrideAttrs (prev: rec {
-            version = "0.17";
-
-            src = fetchFromGitHub {
-              owner = "yosyshq";
-              repo = "yosys";
-              rev = "${prev.pname}-${version}";
-              hash = "sha256-IjT+G3figWe32tTkIzv/RFjy0GBaNaZMQ1GA8mRHkio=";
-            };
-
-            # for upstream packaging this should be true, but for the users
-            # of this repository, who just want to install the toolchain,
-            # it is very redundant to run these checks, which take a long time
-            doCheck = false;
-
-            passthru = {
-              inherit (prev) withPlugins;
-              allPlugins = { ghdl = yosys-ghdl; };
-            };
-          })).override { inherit abc-verifier; };
-
           nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
 
           prjxray = callPackage ./nix/prjxray.nix { };
@@ -103,12 +65,12 @@
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = (with self.packages.${system}; [
-            yosys
-            ghdl
-            yosys-ghdl
             prjxray
             nextpnr-xilinx
           ]) ++ (with nixpkgsFor.${system}; [
+            yosys
+            ghdl
+            yosys-ghdl
             openfpgaloader
             fasm
             pypy39

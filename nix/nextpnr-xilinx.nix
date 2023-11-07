@@ -22,6 +22,7 @@ stdenv.mkDerivation rec {
     "-DBUILD_GUI=OFF"
     "-DBUILD_TESTS=OFF"
     "-DUSE_OPENMP=ON"
+    "-Wno-deprecated"
   ];
 
   installPhase = ''

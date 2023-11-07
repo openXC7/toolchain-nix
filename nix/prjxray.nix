@@ -15,6 +15,11 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ cmake git ];
   buildInputs = [ python310Packages.boost python310 eigen ];
 
+  patchPhase = ''
+    sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
+    sed -i '29 itarget_compile_options(libprjxray PUBLIC "-Wno-deprecated")' lib/CMakeLists.txt
+  '';
+
   installPhase = ''
     mkdir -p $out/bin
     cp -v tools/xc7frames2bit tools/xc7patch $out/bin
