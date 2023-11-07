@@ -1,5 +1,4 @@
 # https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/python.section.md
-# https://aur.archlinux.org/packages/python-fasm-git
 
 { lib
 , buildPythonPackage
