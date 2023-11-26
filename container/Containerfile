@@ -1,0 +1,9 @@
+FROM nixos/nix:latest
+
+ARG workdir=/workspaces
+
+RUN echo 'experimental-features = nix-command flakes' >> /etc/nix/nix.conf && mkdir $workdir && nix develop github:openxc7/toolchain-nix
+
+WORKDIR $workdir
+
+CMD ["nix", "develop", "github:openxc7/toolchain-nix"]
