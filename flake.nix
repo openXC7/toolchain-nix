@@ -58,6 +58,8 @@
               backend = "zynq7";
             };
           };
+
+          yosys-synlig = callPackage ./nix/yosys-synlig.nix { };
         });
 
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
@@ -67,11 +69,11 @@
             fasm
             prjxray
             nextpnr-xilinx
+            yosys-synlig
           ]) ++ (with nixpkgsFor.${system}; [
             yosys
             ghdl
             yosys-ghdl
-            yosys-synlig
             openfpgaloader
             pypy39
             python310Packages.pyyaml
