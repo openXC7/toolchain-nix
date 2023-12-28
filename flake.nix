@@ -71,6 +71,7 @@
             yosys
             ghdl
             yosys-ghdl
+            yosys-synlig
             openfpgaloader
             pypy39
             python310Packages.pyyaml
