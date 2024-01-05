@@ -90,9 +90,61 @@
               "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
               "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
-              "export PYTHONPATH=$PYTHONPATH:$PRJXRAY_PYTHON_DIR:" mypkgs.fasm.outPath "/lib/python3.11/site-packages/\n"
+              ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' mypkgs.fasm.outPath "/lib/python3.11/site-packages/\n"
               "export PYPY3=" nixpkgs.pypy39.outPath "/bin/pypy3.9"
             ];
+        }
+      );
+      
+      dockerImage = forAllSystems (system:
+        let pkgs = nixpkgsFor.${system};
+        in
+        pkgs.dockerTools.buildImage {
+          name = "openxc7-docker";
+          copyToRoot = pkgs.buildEnv {
+            name = "image-root";
+            paths = self.devShell.${system}.buildInputs ++ (with pkgs; [
+              bashInteractive
+              findutils
+              gnused
+              gnugrep
+              coreutils
+              gnumake
+              python310
+            ]);
+            pathsToLink = [ "/bin" ] ++ (with pkgs.dockerTools; [
+              usrBinEnv
+              binSh
+            ]);
+          };
+
+          runAsRoot = ''
+            #!${pkgs.runtimeShell}
+            mkdir -p /work
+            cat > /bin/devshell <<EOF
+            #!${pkgs.runtimeShell}
+            '' + self.devShell.${system}.shellHook + "\n" +
+            ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:'' + 
+              pkgs.python310Packages.textx.outPath + "/lib/python3.10/site-packages/:" + 
+              pkgs.python310Packages.pyyaml.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.simplejson.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.intervaltree.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.arpeggio.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.setuptools.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.future.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.sortedcontainers.outPath + "/lib/python3.10/site-packages/:" +
+              self.packages.${system}.fasm.outPath + "/lib/python3.11/site-packages/" +
+              "\n" +
+            "\nexec ${pkgs.bashInteractive}/bin/bash\n" + 
+            ''EOF
+            chmod 755 /bin/devshell
+          '';
+
+          config = {
+            Cmd = [ "/bin/devshell" ];
+            WorkingDir = "/work";
+            Volumes = { "/work" = { }; };
+          };
         }
       );
     };
