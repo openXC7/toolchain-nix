@@ -39,6 +39,12 @@ The resulting container is then the file `./result`, which you can install
 with:
 ```
 $ docker image load --input result
+a7cd1bb3e14c: Loading layer [==================================================>]   2.34GB/2.34GB
+Loaded image: openxc7-docker:ifnarr8fs6vln2sbxwswrxlmwvxjmri0
+```
+You can then run this image with:
+```
+docker run -v ./demo-projects/:/work -it openxc7-docker:ifnarr8fs6vln2sbxwswrxlmwvxjmri0
 ```
 
 ### `podman`
