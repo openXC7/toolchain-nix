@@ -30,7 +30,18 @@ $ make program
 ```
 
 ## How to use as a container
+### `docker`
+To build a docker container for `x86_64-linux`, use:
+```
+$ nix build -L ".#dockerImage.x86_64-linux"
+```
+The resulting container is then the file `./result`, which you can install
+with:
+```
+$ docker image load --input result
+```
 
+### `podman`
 To utilize the openXC7 FPGA toolchain in a Podman container, users must first ensure Podman is installed on their system. The process involves building the container image with the toolchain using a specific build command. Once the image is built, the toolchain is executed within the container through a run command. This containerized approach ensures a consistent development environment across various operating systems like Windows, MacOS (x86 only), and Linux, streamlining the deployment and usage of the toolchain.
 
 For installation and contaienr usage, please refer to the [detailed instructions](container).
