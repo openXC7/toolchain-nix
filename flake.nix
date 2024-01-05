@@ -97,7 +97,9 @@
       );
       
       dockerImage = forAllSystems (system:
-        let pkgs = nixpkgsFor.${system};
+        let
+          pkgs = nixpkgsFor.${system};
+          pyPkgPath = "/lib/python3.10/site-packages/:";
         in
         pkgs.dockerTools.buildImage {
           name = "openxc7-docker";
@@ -125,14 +127,14 @@
             #!${pkgs.runtimeShell}
             '' + self.devShell.${system}.shellHook + "\n" +
             ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:'' + 
-              pkgs.python310Packages.textx.outPath + "/lib/python3.10/site-packages/:" + 
-              pkgs.python310Packages.pyyaml.outPath + "/lib/python3.10/site-packages/:" +
-              pkgs.python310Packages.simplejson.outPath + "/lib/python3.10/site-packages/:" +
-              pkgs.python310Packages.intervaltree.outPath + "/lib/python3.10/site-packages/:" +
-              pkgs.python310Packages.arpeggio.outPath + "/lib/python3.10/site-packages/:" +
-              pkgs.python310Packages.setuptools.outPath + "/lib/python3.10/site-packages/:" +
-              pkgs.python310Packages.future.outPath + "/lib/python3.10/site-packages/:" +
-              pkgs.python310Packages.sortedcontainers.outPath + "/lib/python3.10/site-packages/:" +
+              pkgs.python310Packages.textx.outPath + pyPkgPath + 
+              pkgs.python310Packages.pyyaml.outPath + pyPkgPath +
+              pkgs.python310Packages.simplejson.outPath + pyPkgPath +
+              pkgs.python310Packages.intervaltree.outPath + pyPkgPath +
+              pkgs.python310Packages.arpeggio.outPath + pyPkgPath +
+              pkgs.python310Packages.setuptools.outPath + pyPkgPath +
+              pkgs.python310Packages.future.outPath + pyPkgPath +
+              pkgs.python310Packages.sortedcontainers.outPath + pyPkgPath +
               self.packages.${system}.fasm.outPath + "/lib/python3.11/site-packages/" +
               "\n" +
             "\nexec ${pkgs.bashInteractive}/bin/bash\n" + 
