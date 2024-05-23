@@ -1,5 +1,6 @@
-{ stdenv, backend, nextpnr-xilinx, prjxray, pypy3, coreutils
+{ stdenv, nixpkgs, backend, nextpnr-xilinx, prjxray, pypy3, coreutils
 , findutils, gnused, gnugrep, ... }:
+
 stdenv.mkDerivation rec {
   pname = "nextpnr-xilinx-chipdb";
   version = nextpnr-xilinx.version;
@@ -44,6 +45,14 @@ stdenv.mkDerivation rec {
     done
 
     mv -f $out/built-footprints.txt $out/footprints.txt
+
+    # make the chipdb directory available
+    mkdir -p $out/bin
+    cat > $out/bin/get_chipdb_${backend}.sh <<EOF
+    #!${nixpkgs.runtimeShell}
+    echo $out
+    EOF
+    chmod 755 $out/bin/get_chipdb_${backend}.sh
   '';
 
   # TODO(jleightcap): the above buildPhase is adapated from a `builder`; which combines the process of

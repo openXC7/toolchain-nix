@@ -47,21 +47,25 @@
           nextpnr-xilinx-chipdb = {
             artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
               backend = "artix7";
+              nixpkgs = pkgs;
               inherit nextpnr-xilinx;
               inherit prjxray;
             };
             kintex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
               backend = "kintex7";
+              nixpkgs = pkgs;
               inherit nextpnr-xilinx;
               inherit prjxray;
             };
             spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
               backend = "spartan7";
+              nixpkgs = pkgs;
               inherit nextpnr-xilinx;
               inherit prjxray;
             } ;
             zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
               backend = "zynq7";
+              nixpkgs = pkgs;
               inherit nextpnr-xilinx;
               inherit prjxray;
             };
