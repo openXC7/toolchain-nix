@@ -45,17 +45,25 @@
             };
 
           nextpnr-xilinx-chipdb = {
-            artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+            artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
               backend = "artix7";
+              inherit nextpnr-xilinx;
+              inherit prjxray;
             };
             kintex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
               backend = "kintex7";
+              inherit nextpnr-xilinx;
+              inherit prjxray;
             };
-            spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+            spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
               backend = "spartan7";
-            };
+              inherit nextpnr-xilinx;
+              inherit prjxray;
+            } ;
             zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
               backend = "zynq7";
+              inherit nextpnr-xilinx;
+              inherit prjxray;
             };
           };
 
@@ -99,6 +107,8 @@
       dockerImage = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
+          mypkgs = self.packages.${system};
+          chipdb = mypkgs.nextpnr-xilinx-chipdb;
           pyPkgPath = "/lib/python3.10/site-packages/:";
         in
         pkgs.dockerTools.buildImage {
@@ -113,6 +123,11 @@
               coreutils
               gnumake
               python310
+            ]) ++ (with chipdb; [
+              spartan7
+              artix7
+              kintex7
+              zynq7
             ]);
             pathsToLink = [ "/bin" ] ++ (with pkgs.dockerTools; [
               usrBinEnv
@@ -137,6 +152,10 @@
               pkgs.python310Packages.sortedcontainers.outPath + pyPkgPath +
               self.packages.${system}.fasm.outPath + "/lib/python3.11/site-packages/" +
               "\n" +
+            "export SPARTAN7_CHIPDB=" + chipdb.spartan7.outPath + "\n" +
+            "export ARTIX7_CHIPDB="   + chipdb.artix7.outPath + "\n" +
+            "export KINTEX7_CHIPDB="  + chipdb.kintex7.outPath + "\n" +
+            "export ZYNQ7_CHIPDB="    + chipdb.zynq7.outPath + "\n" +
             "\nexec ${pkgs.bashInteractive}/bin/bash\n" + 
             ''EOF
             chmod 755 /bin/devshell

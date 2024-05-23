@@ -5,7 +5,9 @@ stdenv.mkDerivation rec {
   version = nextpnr-xilinx.version;
   inherit backend;
 
-  src = "${nextpnr-xilinx.outPath}/usr/share/nextpnr/external/prjxray-db";
+  src = "${nextpnr-xilinx.outPath}/share/nextpnr/external/prjxray-db";
+  # Don't try to unpack src, it already exists
+  dontUnpack = true;
 
   buildInputs =
     [ prjxray nextpnr-xilinx pypy3 coreutils findutils gnused gnugrep ];
@@ -36,7 +38,7 @@ stdenv.mkDerivation rec {
 
         FIRST_SPEEDGRADE_DIR=`ls -d ${src}/$ARCH/$i-* | sort -n | head -1`
         FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
-        pypy3.9 ${nextpnr-xilinx}/usr/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
+        pypy3.9 ${nextpnr-xilinx}/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
         bbasm -l $i.bba $out/$i.bin
         echo $i >> $out/built-footprints.txt
     done
