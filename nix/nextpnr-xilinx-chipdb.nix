@@ -50,7 +50,7 @@ stdenv.mkDerivation rec {
     mkdir -p $out/bin
     cat > $out/bin/get_chipdb_${backend}.sh <<EOF
     #!${nixpkgs.runtimeShell}
-    echo $out
+    echo -n $out
     EOF
     chmod 755 $out/bin/get_chipdb_${backend}.sh
   '';
