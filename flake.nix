@@ -107,7 +107,7 @@
             ];
         }
       );
-      
+
       dockerImage = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
@@ -139,31 +139,35 @@
             ]);
           };
 
-          runAsRoot = ''
+          runAsRoot = pkgs.lib.concatStrings [ ''
             #!${pkgs.runtimeShell}
             mkdir -p /work
             cat > /bin/devshell <<EOF
             #!${pkgs.runtimeShell}
-            '' + self.devShell.${system}.shellHook + "\n" +
-            ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:'' + 
-              pkgs.python310Packages.textx.outPath + pyPkgPath + 
-              pkgs.python310Packages.pyyaml.outPath + pyPkgPath +
-              pkgs.python310Packages.simplejson.outPath + pyPkgPath +
-              pkgs.python310Packages.intervaltree.outPath + pyPkgPath +
-              pkgs.python310Packages.arpeggio.outPath + pyPkgPath +
-              pkgs.python310Packages.setuptools.outPath + pyPkgPath +
-              pkgs.python310Packages.future.outPath + pyPkgPath +
-              pkgs.python310Packages.sortedcontainers.outPath + pyPkgPath +
-              self.packages.${system}.fasm.outPath + "/lib/python3.11/site-packages/" +
-              "\n" +
-            "export SPARTAN7_CHIPDB=" + chipdb.spartan7.outPath + "\n" +
-            "export ARTIX7_CHIPDB="   + chipdb.artix7.outPath + "\n" +
-            "export KINTEX7_CHIPDB="  + chipdb.kintex7.outPath + "\n" +
-            "export ZYNQ7_CHIPDB="    + chipdb.zynq7.outPath + "\n" +
-            "\nexec ${pkgs.bashInteractive}/bin/bash\n" + 
+            '' self.devShell.${system}.shellHook "\n"
+            "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
+            "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+            "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
+            ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:''
+              pkgs.python310Packages.textx.outPath pyPkgPath
+              pkgs.python310Packages.pyyaml.outPath pyPkgPath
+              pkgs.python310Packages.simplejson.outPath pyPkgPath
+              pkgs.python310Packages.intervaltree.outPath pyPkgPath
+              pkgs.python310Packages.arpeggio.outPath pyPkgPath
+              pkgs.python310Packages.setuptools.outPath pyPkgPath
+              pkgs.python310Packages.future.outPath pyPkgPath
+              pkgs.python310Packages.sortedcontainers.outPath pyPkgPath
+              mypkgs.fasm.outPath "/lib/python3.11/site-packages/"
+              "\n"
+            "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
+            "export SPARTAN7_CHIPDB="    chipdb.spartan7.outPath "\n"
+            "export ARTIX7_CHIPDB="      chipdb.artix7.outPath "\n"
+            "export KINTEX7_CHIPDB="     chipdb.kintex7.outPath "\n"
+            "export ZYNQ7_CHIPDB="       chipdb.zynq7.outPath "\n"
+            "\nexec ${pkgs.bashInteractive}/bin/bash\n"
             ''EOF
             chmod 755 /bin/devshell
-          '';
+          ''];
 
           config = {
             Cmd = [ "/bin/devshell" ];
