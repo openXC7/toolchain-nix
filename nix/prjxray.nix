@@ -1,19 +1,19 @@
-{ stdenv, lib, fetchFromGitHub, cmake, git, python310Packages, eigen, python310
+{ stdenv, lib, fetchFromGitHub, cmake, git, python312Packages, eigen, python312
 , ... }:
 stdenv.mkDerivation rec {
   pname = "prjxray";
-  version = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
+  version = "bdbc665852b82f589ff775a8f6498542dbec0a07";
 
   src = fetchFromGitHub {
     owner = "f4pga";
     repo = "prjxray";
-    rev = "76401bd93e493fd5ff4c2af4751d12105b0f4f6d";
+    rev = "bdbc665852b82f589ff775a8f6498542dbec0a07";
     fetchSubmodules = true;
-    hash = "sha256-+k9Em+xX1rWPs3oATy3g1U0O6y3CATT9P42p0YCafxM=";
+    hash = "sha256-lV4o62lS7CMG0EYPhp9bTB4fg0hOixy8CC8yGxKhGQE=";
   };
 
   nativeBuildInputs = [ cmake git ];
-  buildInputs = [ python310Packages.boost python310 eigen ];
+  buildInputs = [ python312Packages.boost python312 eigen ];
 
   patchPhase = ''
     sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile

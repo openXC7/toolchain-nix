@@ -1,19 +1,19 @@
-{ stdenv, cmake, git, lib, fetchFromGitHub, python310Packages, python310, eigen
+{ stdenv, cmake, git, lib, fetchFromGitHub, python312Packages, python312, eigen
 , llvmPackages, ... }:
 stdenv.mkDerivation rec {
   pname = "nextpnr-xilinx";
-  version = "0.7.0";
+  version = "0.8.0";
 
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr-xilinx";
-    rev = "159aaa86cb3a12c4a9638830b562e57fdcba28c4";
-    hash = "sha256-W6MLaJS8p4Rj5mFIHMvesuAiWX66FdON4YOTZKTQNVc=";
+    rev = "32216ba82431a8f8dea49ad48d1aab235df616cd";
+    hash = "sha256-ED1lISS1mJAL7/f3ADrTOeHw8FySubZOlvqQbGSiVTQ=";
     fetchSubmodules = true;
   };
 
   nativeBuildInputs = [ cmake git ];
-  buildInputs = [ python310Packages.boost python310 eigen ]
+  buildInputs = [ python312Packages.boost python312 eigen ]
     ++ (lib.optional stdenv.cc.isClang [ llvmPackages.openmp ]);
 
   cmakeFlags = [

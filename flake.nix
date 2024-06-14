@@ -87,11 +87,11 @@
             ghdl
             yosys-ghdl
             openfpgaloader
-            pypy39
-            python310Packages.pyyaml
-            python310Packages.textx
-            python310Packages.simplejson
-            python310Packages.intervaltree
+            pypy310
+            python312Packages.pyyaml
+            python312Packages.textx
+            python312Packages.simplejson
+            python312Packages.intervaltree
           ]);
 
           shellHook =
@@ -103,7 +103,7 @@
               "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
               ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' mypkgs.fasm.outPath "/lib/python3.11/site-packages/\n"
-              "export PYPY3=" nixpkgs.pypy39.outPath "/bin/pypy3.9"
+              "export PYPY3=" nixpkgs.pypy310.outPath "/bin/pypy3.10"
             ];
         }
       );
@@ -126,7 +126,7 @@
               gnugrep
               coreutils
               gnumake
-              python310
+              python312
             ]) ++ (with chipdb; [
               spartan7
               artix7
@@ -149,14 +149,14 @@
             "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
             "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
             ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:''
-              pkgs.python310Packages.textx.outPath pyPkgPath
-              pkgs.python310Packages.pyyaml.outPath pyPkgPath
-              pkgs.python310Packages.simplejson.outPath pyPkgPath
-              pkgs.python310Packages.intervaltree.outPath pyPkgPath
-              pkgs.python310Packages.arpeggio.outPath pyPkgPath
-              pkgs.python310Packages.setuptools.outPath pyPkgPath
-              pkgs.python310Packages.future.outPath pyPkgPath
-              pkgs.python310Packages.sortedcontainers.outPath pyPkgPath
+              pkgs.python312Packages.textx.outPath pyPkgPath
+              pkgs.python312Packages.pyyaml.outPath pyPkgPath
+              pkgs.python312Packages.simplejson.outPath pyPkgPath
+              pkgs.python312Packages.intervaltree.outPath pyPkgPath
+              pkgs.python312Packages.arpeggio.outPath pyPkgPath
+              pkgs.python312Packages.setuptools.outPath pyPkgPath
+              pkgs.python312Packages.future.outPath pyPkgPath
+              pkgs.python312Packages.sortedcontainers.outPath pyPkgPath
               mypkgs.fasm.outPath "/lib/python3.11/site-packages/"
               "\n"
             "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
