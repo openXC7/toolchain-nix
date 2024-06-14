@@ -30,7 +30,74 @@
         let
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
+          yosys-version = "0.42";
         in rec {
+          ghdl = pkgs.ghdl;
+
+          abc-verifier = pkgs.abc-verifier.overrideAttrs (_: rec {
+            version = "yosys-${yosys-version}";
+            src = fetchFromGitHub {
+              owner = "yosyshq";
+              repo = "abc";
+              rev = "237d81397fcc85dd3894bf1a449d2955cd3df02d";
+              hash = "sha256-t3wdt/jGyF3Ysd0rzDYvPzECgOAL87/IJlHh3FGaF1k=";
+            };
+            passthru.rev = src.rev;
+          });
+
+          yosys-ghdl = pkgs.yosys-ghdl;
+
+          # override yosys with version suitable for ingest by nextpnr-xilinx.
+          yosys = (pkgs.yosys.overrideAttrs (prev: rec {
+            version = yosys-version;
+
+            src = fetchFromGitHub {
+              owner = "yosyshq";
+              repo = "yosys";
+              rev = "${prev.pname}-${version}";
+              hash = "sha256-dkZ3k2yPRmnQsbWNIUY9CbkzS2yvEyssLrqp6Z28cQY=";
+            };
+
+            patches = [
+              ./plugin-search-dirs.patch
+              # This patch does not apply in 0.42
+              # ./fix-clang-build.patch # see https://github.com/YosysHQ/yosys/issues/2011
+            ];
+
+            postPatch = ''
+              substituteInPlace ./Makefile \
+                --replace-fail 'echo UNKNOWN' 'echo ${builtins.substring 0 10 src.rev}'
+
+              chmod +x ./misc/yosys-config.in
+              patchShebangs tests ./misc/yosys-config.in
+            '';
+
+            preBuild = ''
+              chmod -R u+w .
+              make config-${if stdenv.cc.isClang or false then "clang" else "gcc"}
+              echo 'ABCEXTERNAL = ${abc-verifier}/bin/abc' >> Makefile.conf
+
+              if ! grep -q "YOSYS_VER := $version" Makefile; then
+                echo "ERROR: yosys version in Makefile isn't equivalent to version of the nix package (allegedly ${version}), failing."
+                exit 1
+              fi
+
+              echo "ENABLE_PYOSYS := 1" >> Makefile.conf
+              echo "PYTHON_DESTDIR := $out/${pkgs.python312.sitePackages}" >> Makefile.conf
+              echo "BOOST_PYTHON_LIB := -L ${pkgs.python312Packages.boost.outPath}/lib -lboost_python312" >> Makefile.conf
+            '';
+
+            # for upstream packaging this should be true, but for the users
+            # of this repository, who just want to install the toolchain,
+            # it is very redundant to run these checks, which take a long time
+            doCheck = false;
+
+            passthru = {
+              inherit (prev) withPlugins;
+              allPlugins = { ghdl = yosys-ghdl; };
+            };
+          })).override { inherit abc-verifier; };
+
           nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
 
           prjxray = callPackage ./nix/prjxray.nix { };
@@ -78,14 +145,14 @@
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = (with self.packages.${system}; [
+            yosys
+            ghdl
+            yosys-ghdl
             fasm
             prjxray
             nextpnr-xilinx
             yosys-synlig
           ]) ++ (with nixpkgsFor.${system}; [
-            yosys
-            ghdl
-            yosys-ghdl
             openfpgaloader
             pypy310
             python312Packages.pyyaml
