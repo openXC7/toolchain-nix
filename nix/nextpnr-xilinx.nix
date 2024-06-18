@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake git ];
   buildInputs = [ python312Packages.boost python312 eigen ]
-    ++ (lib.optional stdenv.cc.isClang [ llvmPackages.openmp ]);
+    ++ (lib.optionals stdenv.cc.isClang [ llvmPackages.openmp ]);
 
   cmakeFlags = [
     "-DCURRENT_GIT_VERSION=${lib.substring 0 7 src.rev}"
