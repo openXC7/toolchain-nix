@@ -28,6 +28,6 @@ do
     fi
     FIRST_SPEEDGRADE_DIR=`ls -d $srcs/$ARCH/$i-* | sort -n | head -1`
     FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
-    pypy3.9 $NEXTPNR_DIR/usr/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
+    pypy3.10 $NEXTPNR_DIR/usr/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
     bbasm -l $i.bba $out/$i.bin
 done
