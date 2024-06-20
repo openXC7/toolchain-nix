@@ -1,4 +1,4 @@
-{ stdenv, nixpkgs, backend, nextpnr-xilinx, prjxray, pypy3, coreutils
+{ stdenv, nixpkgs, backend, nextpnr-xilinx, prjxray, pypy310, coreutils
 , findutils, gnused, gnugrep, ... }:
 
 stdenv.mkDerivation rec {
@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
   dontUnpack = true;
 
   buildInputs =
-    [ prjxray nextpnr-xilinx pypy3 coreutils findutils gnused gnugrep ];
+    [ prjxray nextpnr-xilinx pypy310 coreutils findutils gnused gnugrep ];
   buildPhase = ''
     mkdir -p $out
     find ${src}/ -type d -name "*-*" -mindepth 1 -maxdepth 2 |\
