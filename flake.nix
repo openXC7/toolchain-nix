@@ -71,7 +71,8 @@
             };
           };
 
-          yosys-synlig = callPackage ./nix/yosys-synlig.nix { };
+          # disable yosys-synlig for now: synlig is not very good and it does not compile with recent yosys
+          # yosys-synlig = callPackage ./nix/yosys-synlig.nix { };
         });
 
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
@@ -81,7 +82,8 @@
             fasm
             prjxray
             nextpnr-xilinx
-            yosys-synlig
+            # disabled, see above
+            # yosys-synlig
           ]) ++ (with nixpkgsFor.${system}; [
             yosys
             ghdl
