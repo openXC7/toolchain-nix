@@ -99,12 +99,21 @@
           shellHook =
             let mypkgs  = self.packages.${system};
                 nixpkgs = nixpkgsFor.${system};
+                pyPkgPath = "/lib/python3.12/site-packages/:";
             in nixpkgs.lib.concatStrings [
               "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
               "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
               "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
-              ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' mypkgs.fasm.outPath "/lib/python3.11/site-packages/\n"
+              ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' 
+                mypkgs.fasm.outPath pyPkgPath
+                nixpkgs.python312Packages.textx.outPath pyPkgPath
+                nixpkgs.python312Packages.arpeggio.outPath pyPkgPath
+                nixpkgs.python312Packages.pyyaml.outPath pyPkgPath
+                nixpkgs.python312Packages.simplejson.outPath pyPkgPath
+                nixpkgs.python312Packages.intervaltree.outPath pyPkgPath
+                nixpkgs.python312Packages.sortedcontainers.outPath pyPkgPath
+                "\n"
               "export PYPY3=" nixpkgs.pypy310.outPath "/bin/pypy3.10"
             ];
         }
@@ -159,7 +168,7 @@
               pkgs.python312Packages.setuptools.outPath pyPkgPath
               pkgs.python312Packages.future.outPath pyPkgPath
               pkgs.python312Packages.sortedcontainers.outPath pyPkgPath
-              mypkgs.fasm.outPath "/lib/python3.11/site-packages/"
+              mypkgs.fasm.outPath "/lib/python3.12/site-packages/"
               "\n"
             "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
             "export SPARTAN7_CHIPDB="    chipdb.spartan7.outPath "\n"
