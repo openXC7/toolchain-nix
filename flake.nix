@@ -44,6 +44,19 @@
               inherit buildPythonPackage pythonOlder textx cython fetchpatch;
             };
 
+          libantlr4cpp = callPackage ./nix/libantlr4cpp { };
+
+          fasm = with pkgs;
+            with python3Packages;
+            callPackage ./nix/fasm {
+              # NOTE(jleightcap): calling this package here is clucky.
+              # contorted structure here to make the `nix/fasm` directory be
+              # drop-in to upstream python-modules in nixpkgs.
+              inherit buildPythonPackage pythonOlder textx cython fetchpatch;
+            };
+
+          libantlr4cpp = callPackage ./nix/libantlr4cpp { };
+
           nextpnr-xilinx-chipdb = {
             artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
               backend = "artix7";
