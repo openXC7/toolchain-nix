@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
 
 
   # Add flags to fix compiling errors from the project being umaintained
-  NIX_CFLAGS_COMPILE = "-include cstdint -Wno-free-nonheap-object";
+  NIX_CFLAGS_COMPILE = "-include stdint.h -Wno-free-nonheap-object";
 
   patchPhase = ''
     sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
