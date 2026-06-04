@@ -31,7 +31,7 @@
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
         in rec {
-          nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
+          # nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
 
           prjxray = callPackage ./nix/prjxray.nix { };
 
@@ -43,6 +43,8 @@
               # drop-in to upstream python-modules in nixpkgs.
               inherit buildPythonPackage pythonOlder textx cython fetchpatch jre_headless antlr4_9;
             };
+
+          nextpnr-xilinx = nixpkgs.nextpnr-xilinx;
 
           nextpnr-xilinx-chipdb = {
             artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
@@ -84,10 +86,10 @@
             fasm
             fpga-assembler
             prjxray
-            nextpnr-xilinx
             # disabled, see above
             # yosys-synlig
           ]) ++ (with nixpkgsFor.${system}; [
+            nextpnr-xilinx
             yosys
             ghdl
             yosys-ghdl
@@ -104,9 +106,9 @@
                 nixpkgs = nixpkgsFor.${system};
                 pyPkgPath = "/lib/python3.12/site-packages/:";
             in nixpkgs.lib.concatStrings [
-              "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
-              "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
-              "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+              "export NEXTPNR_XILINX_DIR=" nixpkgs.nextpnr-xilinx.outPath "\n"
+              "export NEXTPNR_XILINX_PYTHON_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
+              "export PRJXRAY_DB_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
               ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' 

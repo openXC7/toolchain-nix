@@ -2,12 +2,12 @@
 , ... }:
 stdenv.mkDerivation rec {
   pname = "prjxray";
-  version = "bdbc665852b82f589ff775a8f6498542dbec0a07";
+  version = "c9f02d8576042325425824647ab5555b1bc77833";
 
   src = fetchFromGitHub {
     owner = "f4pga";
     repo = "prjxray";
-    rev = "bdbc665852b82f589ff775a8f6498542dbec0a07";
+    rev = "c9f02d8576042325425824647ab5555b1bc77833";
     fetchSubmodules = true;
     hash = "sha256-lV4o62lS7CMG0EYPhp9bTB4fg0hOixy8CC8yGxKhGQE=";
   };
@@ -15,8 +15,16 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ cmake git ];
   buildInputs = [ python312Packages.boost python312 eigen ];
 
+
+  # Add flags to fix compiling errors from the project being umaintained
+  NIX_CFLAGS_COMPILE = "-include cstdint -Wno-free-nonheap-object";
+
   patchPhase = ''
     sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
+    sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
+    sed -i 's/VERSION 3.5.0/VERSION 3.14.0/g' CMakeLists.txt
+    sed -i 's/VERSION 3.0.2/VERSION 3.14.0/g' third_party/gflags/CMakeLists.txt
+    sed -i 's/VERSION 2.8.12/VERSION 3.14.0/g' third_party/cctz/CMakeLists.txt
     sed -i '29 itarget_compile_options(libprjxray PUBLIC "-Wno-deprecated")' lib/CMakeLists.txt
   '';
 
