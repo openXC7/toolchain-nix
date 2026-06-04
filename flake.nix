@@ -75,8 +75,7 @@
 
           fpga-assembler = (builtins.getFlake "github:lromor/fpga-assembler/6ff89a2d53edc9d74a402c28096450473b67de13").packages.${system}.default;
 
-          # disable yosys-synlig for now: synlig is not very good and it does not compile with recent yosys
-          # yosys-synlig = callPackage ./nix/yosys-synlig.nix { };
+          yosys-slang = callPackage ./nix/yosys-slang.nix { };
         });
 
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
@@ -86,8 +85,7 @@
             fasm
             fpga-assembler
             prjxray
-            # disabled, see above
-            # yosys-synlig
+            yosys-slang
           ]) ++ (with nixpkgsFor.${system}; [
             nextpnr-xilinx
             yosys
