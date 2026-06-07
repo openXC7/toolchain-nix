@@ -116,6 +116,14 @@
                 nixpkgs.python312Packages.simplejson.outPath pyPkgPath
                 nixpkgs.python312Packages.intervaltree.outPath pyPkgPath
                 nixpkgs.python312Packages.sortedcontainers.outPath pyPkgPath
+
+                # Needed by fasm to import antlr correctly
+                nixpkgs.python312Packages.cython.outPath pyPkgPath
+                nixpkgs.python312Packages.distutils.outPath pyPkgPath
+                nixpkgs.python312Packages.jaraco-envs.outPath pyPkgPath
+                nixpkgs.python312Packages.jaraco-functools.outPath pyPkgPath
+                nixpkgs.python312Packages.more-itertools.outPath pyPkgPath
+                nixpkgs.python312Packages.packaging.outPath pyPkgPath
                 "\n"
               "export PYPY3=" nixpkgs.pypy310.outPath "/bin/pypy3.10"
             ];
