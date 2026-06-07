@@ -106,7 +106,6 @@
               "export NEXTPNR_XILINX_DIR=" nixpkgs.nextpnr-xilinx.outPath "\n"
               "export NEXTPNR_XILINX_PYTHON_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
               "export PRJXRAY_DB_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
-              "export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
               ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' 
                 mypkgs.fasm.outPath pyPkgPath
