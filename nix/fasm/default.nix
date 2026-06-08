@@ -10,6 +10,7 @@
 , textx
 , cython
 , fetchpatch
+, python312Packages
 }:
 
 buildPythonPackage rec {
@@ -36,6 +37,7 @@ buildPythonPackage rec {
 
   buildInputs = [
     antlr4_9.runtime.cpp
+    antlr4_9.runtime.cpp.dev
   ];
 
   propagatedBuildInputs = [
@@ -47,6 +49,18 @@ buildPythonPackage rec {
   postPatch = ''
     substituteInPlace setup.py \
       --replace-fail "self.antlr_runtime = 'static'" "self.antlr_runtime = 'shared'"
+    substituteInPlace third_party/googletest/CMakeLists.txt \
+      --replace-fail "VERSION 2.8.8" "VERSION 4.1.0"
+    substituteInPlace third_party/googletest/googletest/CMakeLists.txt \
+      --replace-fail "VERSION 2.6.4" "VERSION 4.1.0"
+    substituteInPlace third_party/googletest/googlemock/CMakeLists.txt \
+      --replace-fail "VERSION 2.6.4" "VERSION 4.1.0"
+    substituteInPlace third_party/googletest/googletest/cmake/internal_utils.cmake \
+      --replace-fail "find_package(PythonInterp)" "find_package(Python3 COMPONENTS Interpreter)"
+    substituteInPlace third_party/googletest/googletest/src/gtest-death-test.cc \
+      --replace-fail "#include <utility>" $'#include <utility>\n#include <cstdint>'
+    substituteInPlace fasm/parser/__init__.py \
+      --replace-fail "from warnings import warn" $'from warnings import warn\nimport pyximport\npyximport.install()'
   '';
 
   dontUseCmakeConfigure = true;

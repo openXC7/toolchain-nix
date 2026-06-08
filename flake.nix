@@ -31,12 +31,12 @@
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
         in rec {
-          nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
+          nextpnr-xilinx = nixpkgs.nextpnr-xilinx;
 
           prjxray = callPackage ./nix/prjxray.nix { };
 
           fasm = with pkgs;
-            with python3Packages;
+            with python312Packages;
             callPackage ./nix/fasm {
               # NOTE(jleightcap): calling this package here is clucky.
               # contorted structure here to make the `nix/fasm` directory be
@@ -73,8 +73,7 @@
 
           fpga-assembler = (builtins.getFlake "github:lromor/fpga-assembler/6ff89a2d53edc9d74a402c28096450473b67de13").packages.${system}.default;
 
-          # disable yosys-synlig for now: synlig is not very good and it does not compile with recent yosys
-          # yosys-synlig = callPackage ./nix/yosys-synlig.nix { };
+          yosys-slang = callPackage ./nix/yosys-slang.nix { };
         });
 
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
@@ -84,10 +83,9 @@
             fasm
             fpga-assembler
             prjxray
-            nextpnr-xilinx
-            # disabled, see above
-            # yosys-synlig
+            yosys-slang
           ]) ++ (with nixpkgsFor.${system}; [
+            nextpnr-xilinx
             yosys
             ghdl
             yosys-ghdl
@@ -104,9 +102,10 @@
                 nixpkgs = nixpkgsFor.${system};
                 pyPkgPath = "/lib/python3.12/site-packages/:";
             in nixpkgs.lib.concatStrings [
-              "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
-              "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
-              "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+              "export YOSYS_PLUGIN_PATH=" mypkgs.yosys-slang.outPath "\n"
+              "export NEXTPNR_XILINX_DIR=" nixpkgs.nextpnr-xilinx.outPath "\n"
+              "export NEXTPNR_XILINX_PYTHON_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
+              "export PRJXRAY_DB_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
               ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' 
                 mypkgs.fasm.outPath pyPkgPath
@@ -116,6 +115,14 @@
                 nixpkgs.python312Packages.simplejson.outPath pyPkgPath
                 nixpkgs.python312Packages.intervaltree.outPath pyPkgPath
                 nixpkgs.python312Packages.sortedcontainers.outPath pyPkgPath
+
+                # Needed by fasm to import antlr correctly
+                nixpkgs.python312Packages.cython.outPath pyPkgPath
+                nixpkgs.python312Packages.distutils.outPath pyPkgPath
+                nixpkgs.python312Packages.jaraco-envs.outPath pyPkgPath
+                nixpkgs.python312Packages.jaraco-functools.outPath pyPkgPath
+                nixpkgs.python312Packages.more-itertools.outPath pyPkgPath
+                nixpkgs.python312Packages.packaging.outPath pyPkgPath
                 "\n"
               "export PYPY3=" nixpkgs.pypy310.outPath "/bin/pypy3.10"
             ];
@@ -162,6 +169,7 @@
             "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
             "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
             "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
+            "export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive"
             ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:''
               pkgs.python312Packages.textx.outPath pyPkgPath
               pkgs.python312Packages.pyyaml.outPath pyPkgPath
