@@ -25,8 +25,10 @@ buildPythonPackage rec {
     owner = "openxc7";
     repo = "fasm";
     rev = "2f57ccb1727a120e8cacbb95c578f3c71bdcc95a";
+    hash = "sha256-zpH7SnS4nkVfTiIngjJINfKtSIl7ee1YQLkRCucTBwY=";
     fetchSubmodules = true;
-    hash = "sha256-4Na24czHPGvxuNuWKDiLkoBamsbqjGQkaQc8ogYHtuA=";
+    leaveDotGit = true;
+    postFetch = ''rm -rf $out/.git'';
   };
 
   nativeBuildInputs = [
