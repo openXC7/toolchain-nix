@@ -73,7 +73,7 @@
 
           fpga-assembler = (builtins.getFlake "github:lromor/fpga-assembler/6ff89a2d53edc9d74a402c28096450473b67de13").packages.${system}.default;
 
-          yosys-slang = callPackage ./nix/yosys-slang.nix { };
+          sv-elab = callPackage ./nix/sv-elab.nix { };
         });
 
       # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
@@ -83,7 +83,7 @@
             fasm
             fpga-assembler
             prjxray
-            yosys-slang
+            sv-elab
           ]) ++ (with nixpkgsFor.${system}; [
             nextpnr-xilinx
             yosys
@@ -102,7 +102,7 @@
                 nixpkgs = nixpkgsFor.${system};
                 pyPkgPath = "/lib/python3.12/site-packages/:";
             in nixpkgs.lib.concatStrings [
-              "export YOSYS_PLUGIN_PATH=" mypkgs.yosys-slang.outPath "\n"
+              "export YOSYS_PLUGIN_PATH=" mypkgs.sv-elab.outPath "\n"
               "export NEXTPNR_XILINX_DIR=" nixpkgs.nextpnr-xilinx.outPath "\n"
               "export NEXTPNR_XILINX_PYTHON_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
               "export PRJXRAY_DB_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"

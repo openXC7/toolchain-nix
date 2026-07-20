@@ -8,8 +8,10 @@ stdenv.mkDerivation rec {
     owner = "f4pga";
     repo = "prjxray";
     rev = "c9f02d8576042325425824647ab5555b1bc77833";
+    hash = "sha256-QuYgd1HTOPTr+0YhTCfDd6+o1p9H56nnF77CIM6svok=";
     fetchSubmodules = true;
-    hash = "sha256-lV4o62lS7CMG0EYPhp9bTB4fg0hOixy8CC8yGxKhGQE=";
+    leaveDotGit = true;
+    postFetch = ''rm -rf $out/.git'';
   };
 
   nativeBuildInputs = [ cmake git ];
