@@ -31,7 +31,7 @@
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
         in rec {
-          nextpnr-xilinx = nixpkgs.nextpnr-xilinx;
+          nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
 
           prjxray = callPackage ./nix/prjxray.nix { };
 
@@ -82,10 +82,10 @@
           buildInputs = (with self.packages.${system}; [
             fasm
             fpga-assembler
+            nextpnr-xilinx
             prjxray
             sv-elab
           ]) ++ (with nixpkgsFor.${system}; [
-            nextpnr-xilinx
             yosys
             ghdl
             yosys-ghdl
@@ -103,9 +103,9 @@
                 pyPkgPath = "/lib/python3.12/site-packages/:";
             in nixpkgs.lib.concatStrings [
               "export YOSYS_PLUGIN_PATH=" mypkgs.sv-elab.outPath "\n"
-              "export NEXTPNR_XILINX_DIR=" nixpkgs.nextpnr-xilinx.outPath "\n"
-              "export NEXTPNR_XILINX_PYTHON_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
-              "export PRJXRAY_DB_DIR=" nixpkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+              "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
+              "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
+              "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
               ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' 
                 mypkgs.fasm.outPath pyPkgPath
