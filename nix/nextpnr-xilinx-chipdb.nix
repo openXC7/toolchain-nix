@@ -27,6 +27,7 @@ stdenv.mkDerivation rec {
         if   [[ $i = xc7a* ]]; then ARCH=artix7 
         elif [[ $i = xc7k* ]]; then ARCH=kintex7
         elif [[ $i = xc7s* ]]; then ARCH=spartan7
+        elif [[ $i = xc7v* ]]; then ARCH=virtex7
         elif [[ $i = xc7z* ]]; then ARCH=zynq7
         else 
           echo "unsupported architecture for footprint $i"

@@ -63,6 +63,12 @@
               inherit nextpnr-xilinx;
               inherit prjxray;
             } ;
+            virtex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+              backend = "virtex7";
+              nixpkgs = pkgs;
+              inherit nextpnr-xilinx;
+              inherit prjxray;
+            };
             zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
               backend = "zynq7";
               nixpkgs = pkgs;
