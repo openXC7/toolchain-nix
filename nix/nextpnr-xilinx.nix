@@ -12,13 +12,13 @@
 
 stdenv.mkDerivation {
   pname = "nextpnr-xilinx";
-  version = "0.9.0";
+  version = "0.9.1";
 
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr-xilinx";
-    rev = "9587fc28fee3baa964fd0c4b7258e60d6d4286b3";
-    hash = "sha256-ahW3GjCoHaLNeN+FOHgEqQKs4P/ihuJNJ+kpmftxq44=";
+    rev = "ee6ebd9e9ef7a59c8cc91d1a505c01de003620d6";
+    hash = "sha256-oWMBXfuxC18bRz8pj2BJFPrbdPSgaTFaCIEZ9/3Y5PQ=";
     fetchSubmodules = true;
   };
 
@@ -28,7 +28,7 @@ stdenv.mkDerivation {
     ++ lib.optional stdenv.cc.isClang llvmPackages.openmp;
 
   cmakeFlags = [
-    "-DCURRENT_GIT_VERSION=0.9.0"
+    "-DCURRENT_GIT_VERSION=0.9.1"
     "-DARCH=xilinx"
     "-DBUILD_GUI=OFF"
     "-DBUILD_TESTS=OFF"
@@ -53,7 +53,7 @@ stdenv.mkDerivation {
   meta = with lib; {
     description = "Place and route tool for Xilinx 7-series FPGAs";
     homepage = "https://github.com/openXC7/nextpnr-xilinx";
-    changelog = "https://github.com/openXC7/nextpnr-xilinx/releases/tag/0.9.0";
+    changelog = "https://github.com/openXC7/nextpnr-xilinx/releases/tag/0.9.1";
     license = licenses.isc;
     mainProgram = "nextpnr-xilinx";
     platforms = platforms.unix;
