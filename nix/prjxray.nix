@@ -2,13 +2,13 @@
 , ... }:
 stdenv.mkDerivation rec {
   pname = "prjxray";
-  version = "c9f02d8576042325425824647ab5555b1bc77833";
+  version = "0.9.2";
 
   src = fetchFromGitHub {
-    owner = "f4pga";
+    owner = "openXC7";
     repo = "prjxray";
-    rev = "c9f02d8576042325425824647ab5555b1bc77833";
-    hash = "sha256-QuYgd1HTOPTr+0YhTCfDd6+o1p9H56nnF77CIM6svok=";
+    rev = "78d98b98dc189a89cd1def61cee7c938f51bc6e5";
+    hash = "sha256-IrXxlQsAdalplKtxHlyBW4K/EMlzG7fvg3HJ/QYt6Bg=";
     fetchSubmodules = true;
     leaveDotGit = true;
     postFetch = ''rm -rf $out/.git'';
@@ -16,7 +16,6 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake git ];
   buildInputs = [ python312Packages.boost python312 eigen ];
-
 
   # Add flags to fix compiling errors from the project being umaintained
   NIX_CFLAGS_COMPILE = "-include stdint.h -Wno-free-nonheap-object";
