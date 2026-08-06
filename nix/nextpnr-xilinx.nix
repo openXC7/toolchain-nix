@@ -24,6 +24,10 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [ cmake pkg-config python3 ];
 
+  patchPhase = ''
+    patch -p1 < ${./fasm-cc-slew.patch}
+  '';
+
   buildInputs = [ python3Packages.boost python3 eigen ]
     ++ lib.optional stdenv.cc.isClang llvmPackages.openmp;
 
@@ -43,6 +47,8 @@ stdenv.mkDerivation {
 
     mkdir -p $out/share/nextpnr/external
     cp -r ../xilinx/external/prjxray-db $out/share/nextpnr/external/
+    # kintex7: HP-bank IOB18/INT IOB_COL segbits (see prjxray-db PR)
+    patch -p1 -d $out/share/nextpnr/external/prjxray-db < ${./prjxray-db-kintex7-hp-iob.patch}
     cp -r ../xilinx/external/nextpnr-xilinx-meta $out/share/nextpnr/external/
     cp -r ../xilinx/python $out/share/nextpnr/
     cp ../xilinx/constids.inc $out/share/nextpnr/
