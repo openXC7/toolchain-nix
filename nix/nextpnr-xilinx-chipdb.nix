@@ -42,6 +42,9 @@ stdenv.mkDerivation rec {
         FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
         pypy3.10 ${nextpnr-xilinx}/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
         bbasm -l $i.bba $out/$i.bin
+        # The .bba intermediates are tens of GB (kintex7: 5-30 GB per
+        # footprint); keep peak disk usage at a single footprint.
+        rm -f $i.bba
         echo $i >> $out/built-footprints.txt
     done
 
