@@ -135,6 +135,19 @@
         }
       );
 
+      # Minimal shell with the build dependencies of nextpnr-xilinx,
+      # used by CI (and developers) to build and run its unit tests.
+      ci-tests = forAllSystems (system:
+        nixpkgsFor.${system}.mkShell {
+          buildInputs = with nixpkgsFor.${system}; [
+            cmake
+            pkg-config
+            python3
+            python3Packages.boost
+            eigen
+          ];
+        });
+
       dockerImage = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
