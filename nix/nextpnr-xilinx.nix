@@ -17,16 +17,12 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr-xilinx";
-    rev = "fedc910d79576871c8fcd853be5c91739efe0b21";
-    hash = "sha256-3jtGnJyffoAqICOYD492jiwuFta8wZdwSExn/hPP5k8=";
+    rev = "a92eb3d1aea4ab089982cff0086871865b78d0e4";
+    hash = "sha256-AHiOyM9gC8QqZxmalxUcRkb7rtOrR6oM2X2nvGDn61c=";
     fetchSubmodules = true;
   };
 
   nativeBuildInputs = [ cmake pkg-config python3 ];
-
-  patchPhase = ''
-    patch -p1 < ${./fasm-cc-slew.patch}
-  '';
 
   buildInputs = [ python3Packages.boost python3 eigen ]
     ++ lib.optional stdenv.cc.isClang llvmPackages.openmp;
@@ -47,8 +43,6 @@ stdenv.mkDerivation {
 
     mkdir -p $out/share/nextpnr/external
     cp -r ../xilinx/external/prjxray-db $out/share/nextpnr/external/
-    # kintex7: HP-bank IOB18/INT IOB_COL segbits (see prjxray-db PR)
-    patch -p1 -d $out/share/nextpnr/external/prjxray-db < ${./prjxray-db-kintex7-hp-iob.patch}
     cp -r ../xilinx/external/nextpnr-xilinx-meta $out/share/nextpnr/external/
     cp -r ../xilinx/python $out/share/nextpnr/
     cp ../xilinx/constids.inc $out/share/nextpnr/
