@@ -17,8 +17,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr-xilinx";
-    rev = "3102581485a67282dbcd3f2c07f2cbb0c66dba14";
-    hash = "sha256-giEv9uks4apQh+F9fLSQi/gHOQFL2bwDLgisIkTkZ7s=";
+    rev = "7094958155bd9f7d7c0f123fd636e4d78a823aae";
+    hash = "sha256-JMQe2gsG1IYkY4aCVdaO2rDjGAL2h5gRjjaa6i8x4Oc=";
     fetchSubmodules = true;
   };
 
