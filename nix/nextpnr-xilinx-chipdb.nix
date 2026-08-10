@@ -38,6 +38,15 @@ stdenv.mkDerivation rec {
           continue
         fi
 
+        # xc7z035 has footprint directories but no part-level
+        # tilegrid.json in prjxray-db, so bbaexport fails and takes the
+        # whole zynq7 package (and with it every CI job that depends on
+        # the chipdb) down.  Skip it until the tilegrid lands upstream.
+        if [[ $i = xc7z035* ]]; then
+          echo "skipping $i (no part-level tilegrid.json in prjxray-db)"
+          continue
+        fi
+
         FIRST_SPEEDGRADE_DIR=`ls -d ${src}/$ARCH/$i-* | sort -n | head -1`
         FIRST_SPEEDGRADE=`echo $FIRST_SPEEDGRADE_DIR | tr '/' '\n' | tail -1`
         pypy3.10 ${nextpnr-xilinx}/share/nextpnr/python/bbaexport.py --device $FIRST_SPEEDGRADE --bba $i.bba 2>&1
