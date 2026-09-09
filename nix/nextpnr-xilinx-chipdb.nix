@@ -38,12 +38,18 @@ stdenv.mkDerivation rec {
           continue
         fi
 
-        # xc7z035 has footprint directories but no part-level
-        # tilegrid.json in prjxray-db, so bbaexport fails and takes the
-        # whole zynq7 package (and with it every CI job that depends on
-        # the chipdb) down.  Skip it until the tilegrid lands upstream.
-        if [[ $i = xc7z035* ]]; then
-          echo "skipping $i (no part-level tilegrid.json in prjxray-db)"
+        # bbaexport resolves the fabric directory from the device name
+        # (xc7s15cpga196-1 -> spartan7/xc7s15/) and needs its
+        # tilegrid.json.  prjxray-db sometimes carries package dirs
+        # whose fabric tilegrid has not landed yet (xc7z035*, and the
+        # spartan7 xc7s6/xc7s15 family expansion) -- attempting them
+        # fails bbaexport and takes the whole family package (and with
+        # it every CI job that depends on the chipdb) down.  Skip
+        # footprints whose fabric tilegrid.json is missing; they become
+        # buildable once the tilegrid lands upstream.
+        FABRIC=`echo $i | sed -E 's/^(xc7(s[0-9]+t?|a[0-9]+t|k[0-9]+t|z[0-9]+t?|v[xh]?[0-9]+t)).*/\1/'`
+        if [ ! -f "${src}/$ARCH/$FABRIC/tilegrid.json" ]; then
+          echo "skipping $i (no fabric tilegrid.json in prjxray-db)"
           continue
         fi
 
