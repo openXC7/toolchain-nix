@@ -7,8 +7,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "prjxray";
-    rev = "78d98b98dc189a89cd1def61cee7c938f51bc6e5";
-    hash = "sha256-IrXxlQsAdalplKtxHlyBW4K/EMlzG7fvg3HJ/QYt6Bg=";
+    rev = "3bfaec761e45dcb27ee8d474f33f9a853fb7789b";
+    hash = "sha256-SNYbMhHXuITZxQr2j6ckehHKcUGIiN4B8mmfmzHY+aQ=";
     fetchSubmodules = true;
     leaveDotGit = true;
     postFetch = ''rm -rf $out/.git'';
