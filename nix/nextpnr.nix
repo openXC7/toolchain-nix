@@ -30,8 +30,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr";
-    rev = "152860f87c46220decab2420a80c2d25e99a14f6";
-    hash = "sha256-zt7iGjEPHl/Nvnm0af3YUEUpMcCJxo10xIcVGTvI1p8=";
+    rev = "0ebc9a1fe0f6e59d93972447e95107e941abebc0";
+    hash = "sha256-FV+vol9eaSS9A/w4VJvNCswUjkKixktcEMgafIxxL8Q=";
     fetchSubmodules = true;
   };
 
