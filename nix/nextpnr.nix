@@ -38,8 +38,8 @@ stdenv.mkDerivation rec {
   prjxray-db = fetchFromGitHub {
     owner = "openXC7";
     repo = "prjxray-db";
-    rev = "ab1fc60c38a0dc1bc1d3d495f3189b25ae971e04";
-    hash = "sha256-x8o8kMyu4PSTLosvwcS3OZGOu23Ti86mTEHtKM/A8rg=";
+    rev = "77e52f10dafbf5a9eaf55e7a5ff86af84279cd2a";
+    hash = "sha256-itvNDYymnCk9LzXTyK/vITcu0n9wXRuFB2fC6HjQRsc=";
   };
 
   nativeBuildInputs = [ cmake pkg-config python3 ];
