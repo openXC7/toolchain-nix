@@ -31,7 +31,9 @@
           pkgs = nixpkgsFor.${system};
           inherit (pkgs) lib callPackage stdenv fetchgit fetchFromGitHub;
         in rec {
-          nextpnr-xilinx = callPackage ./nix/nextpnr-xilinx.nix { };
+          prjxray-db = callPackage ./nix/prjxray-db.nix { };
+
+          nextpnr = callPackage ./nix/nextpnr.nix { inherit prjxray-db; };
 
           prjxray = callPackage ./nix/prjxray.nix { };
 
@@ -44,36 +46,34 @@
               inherit buildPythonPackage pythonOlder textx cython fetchpatch jre_headless antlr4_9;
             };
 
+          # The attribute keeps the nextpnr-xilinx name: it is the database
+          # for the executable of that name in the devshell, and
+          # demo-projects' smoke/heavy workflows build this attribute by name.
           nextpnr-xilinx-chipdb = {
-            artix7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
+            artix7 = callPackage ./nix/nextpnr-chipdb.nix  {
               backend = "artix7";
               nixpkgs = pkgs;
-              inherit nextpnr-xilinx;
-              inherit prjxray;
+              inherit nextpnr prjxray-db;
             };
-            kintex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+            kintex7 = callPackage ./nix/nextpnr-chipdb.nix {
               backend = "kintex7";
               nixpkgs = pkgs;
-              inherit nextpnr-xilinx;
-              inherit prjxray;
+              inherit nextpnr prjxray-db;
             };
-            spartan7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix  {
+            spartan7 = callPackage ./nix/nextpnr-chipdb.nix  {
               backend = "spartan7";
               nixpkgs = pkgs;
-              inherit nextpnr-xilinx;
-              inherit prjxray;
+              inherit nextpnr prjxray-db;
             } ;
-            virtex7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+            virtex7 = callPackage ./nix/nextpnr-chipdb.nix {
               backend = "virtex7";
               nixpkgs = pkgs;
-              inherit nextpnr-xilinx;
-              inherit prjxray;
+              inherit nextpnr prjxray-db;
             };
-            zynq7 = callPackage ./nix/nextpnr-xilinx-chipdb.nix {
+            zynq7 = callPackage ./nix/nextpnr-chipdb.nix {
               backend = "zynq7";
               nixpkgs = pkgs;
-              inherit nextpnr-xilinx;
-              inherit prjxray;
+              inherit nextpnr prjxray-db;
             };
           };
 
@@ -82,13 +82,13 @@
           sv-elab = callPackage ./nix/sv-elab.nix { };
         });
 
-      # contains a mutually consistent set of packages for a full toolchain using nextpnr-xilinx.
+      # contains a mutually consistent set of packages for a full toolchain using openXC7/nextpnr.
       devShell = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = (with self.packages.${system}; [
             fasm
             fpga-assembler
-            nextpnr-xilinx
+            nextpnr
             prjxray
             sv-elab
           ]) ++ (with nixpkgsFor.${system}; [
@@ -109,9 +109,12 @@
                 pyPkgPath = "/lib/python3.12/site-packages/:";
             in nixpkgs.lib.concatStrings [
               "export YOSYS_PLUGIN_PATH=" mypkgs.sv-elab.outPath "\n"
-              "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
-              "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
-              "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+              "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr.outPath "\n"
+              # The port has no bbaexport.py; the chipdbs come prebuilt from
+              # nextpnr-xilinx-chipdb, so openXC7.mk's lazy-chipdb rule never
+              # fires.  Kept so the exported interface is unchanged.
+              "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr.outPath "/share/nextpnr\n"
+              "export PRJXRAY_DB_DIR=" mypkgs.nextpnr.outPath "/share/nextpnr/external/prjxray-db\n"
               "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
               ''export PYTHONPATH=''$PYTHONPATH:''$PRJXRAY_PYTHON_DIR:'' 
                 mypkgs.fasm.outPath pyPkgPath
@@ -135,8 +138,8 @@
         }
       );
 
-      # Minimal shell with the build dependencies of nextpnr-xilinx,
-      # used by CI (and developers) to build and run its unit tests.
+      # Minimal shell with the build dependencies of openXC7/nextpnr,
+      # used by CI (and developers) to build and run it.
       ci-tests = forAllSystems (system:
         nixpkgsFor.${system}.mkShell {
           buildInputs = with nixpkgsFor.${system}; [
@@ -185,8 +188,8 @@
             cat > /bin/devshell <<EOF
             #!${pkgs.runtimeShell}
             '' self.devShell.${system}.shellHook "\n"
-            "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/python/\n"
-            "export PRJXRAY_DB_DIR=" mypkgs.nextpnr-xilinx.outPath "/share/nextpnr/external/prjxray-db\n"
+            "export NEXTPNR_XILINX_PYTHON_DIR=" mypkgs.nextpnr.outPath "/share/nextpnr\n"
+            "export PRJXRAY_DB_DIR=" mypkgs.nextpnr.outPath "/share/nextpnr/external/prjxray-db\n"
             "export PRJXRAY_PYTHON_DIR=" mypkgs.prjxray.outPath "/usr/share/python3/\n"
             "export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive"
             ''export PYTHONPATH=\''$PYTHONPATH:\''$PRJXRAY_PYTHON_DIR:''
@@ -200,7 +203,7 @@
               pkgs.python312Packages.sortedcontainers.outPath pyPkgPath
               mypkgs.fasm.outPath "/lib/python3.12/site-packages/"
               "\n"
-            "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr-xilinx.outPath "\n"
+            "export NEXTPNR_XILINX_DIR=" mypkgs.nextpnr.outPath "\n"
             "export SPARTAN7_CHIPDB="    chipdb.spartan7.outPath "\n"
             "export ARTIX7_CHIPDB="      chipdb.artix7.outPath "\n"
             "export KINTEX7_CHIPDB="     chipdb.kintex7.outPath "\n"
