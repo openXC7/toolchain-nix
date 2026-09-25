@@ -68,7 +68,12 @@ stdenv.mkDerivation {
         fabric=xc7a50t
       fi
       if [ -f "$out/chipdb-$fabric.bin" ]; then
-        cp "$out/chipdb-$fabric.bin" "$out/$part.bin"
+        # Symlink, not copy: one die's database is 20-75 MB and serves every
+        # package of that die, so a copy under each part name inflated a
+        # family's artefact severalfold (kintex7: 1.2 GB for 252 MB of data)
+        # and made CI pull the copies with it.  Relative, so the store path
+        # stays self-contained and relocatable.
+        ln -s "chipdb-$fabric.bin" "$out/$part.bin"
       else
         echo "no chipdb for $part (fabric $fabric) -- skipped"
       fi
