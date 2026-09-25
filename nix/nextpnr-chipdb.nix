@@ -4,8 +4,9 @@
 # --device xc7a50t) and one database serves every package of that die, so the
 # work is per-die.  demo-projects' openXC7.mk asks for
 # ${CHIPDB}/${DBPART}.bin with the speedgrade stripped, and nextpnr's device
-# parser resolves the part-form name itself, so each package also gets a copy
-# of its die's database under its own name.
+# parser resolves the part-form name itself, so each package also gets a
+# relative symlink to its die's database under its own name -- the die
+# databases themselves are the only files the derivation stores.
 #
 # The die list is ALL_HIMBAECHEL_XILINX_DEVICES from the uarch's CMakeLists,
 # grouped by family.
