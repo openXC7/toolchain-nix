@@ -4,8 +4,9 @@
 # --device xc7a50t) and one database serves every package of that die, so the
 # work is per-die.  demo-projects' openXC7.mk asks for
 # ${CHIPDB}/${DBPART}.bin with the speedgrade stripped, and nextpnr's device
-# parser resolves the part-form name itself, so each package also gets a copy
-# of its die's database under its own name.
+# parser resolves the part-form name itself, so each package also gets a
+# relative symlink to its die's database under its own name -- the die
+# databases themselves are the only files the derivation stores.
 #
 # The die list is ALL_HIMBAECHEL_XILINX_DEVICES from the uarch's CMakeLists,
 # grouped by family.
@@ -68,7 +69,18 @@ stdenv.mkDerivation {
         fabric=xc7a50t
       fi
       if [ -f "$out/chipdb-$fabric.bin" ]; then
-        cp "$out/chipdb-$fabric.bin" "$out/$part.bin"
+        # Symlink, not copy: one die's database is 20-75 MB and serves every
+        # package of that die, so a copy under each part name inflated a
+        # family's artefact severalfold (kintex7: 1.2 GB for 252 MB of data)
+        # and made CI pull the copies with it.  Relative, so the store path
+        # stays self-contained and relocatable.
+        #
+        # -f because the speed grades of one footprint collapse onto the same
+        # part name (xc7a100tcsg324-1, -2, -2L and -3 all strip to
+        # xc7a100tcsg324): every one of them links the same die's database, so
+        # the last writer is the right one.  A plain ln -s aborts the build on
+        # the second one; the copy this replaced overwrote silently.
+        ln -sf "chipdb-$fabric.bin" "$out/$part.bin"
       else
         echo "no chipdb for $part (fabric $fabric) -- skipped"
       fi
