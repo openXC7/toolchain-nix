@@ -73,7 +73,13 @@ stdenv.mkDerivation {
         # family's artefact severalfold (kintex7: 1.2 GB for 252 MB of data)
         # and made CI pull the copies with it.  Relative, so the store path
         # stays self-contained and relocatable.
-        ln -s "chipdb-$fabric.bin" "$out/$part.bin"
+        #
+        # -f because the speed grades of one footprint collapse onto the same
+        # part name (xc7a100tcsg324-1, -2, -2L and -3 all strip to
+        # xc7a100tcsg324): every one of them links the same die's database, so
+        # the last writer is the right one.  A plain ln -s aborts the build on
+        # the second one; the copy this replaced overwrote silently.
+        ln -sf "chipdb-$fabric.bin" "$out/$part.bin"
       else
         echo "no chipdb for $part (fabric $fabric) -- skipped"
       fi
