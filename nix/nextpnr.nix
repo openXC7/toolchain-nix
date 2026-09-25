@@ -32,7 +32,7 @@ let
 in
 stdenv.mkDerivation {
   pname = "nextpnr";
-  version = "0.11.1-e860c9c8";
+  version = "1.0.0";
   inherit src;
 
   nativeBuildInputs = [ cmake pkg-config python3 ];
