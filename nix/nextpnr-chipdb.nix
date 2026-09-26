@@ -59,14 +59,19 @@ stdenv.mkDerivation {
     done
 
     # Part names for openXC7.mk.  The fabric prefix is nextpnr's own device
-    # class, with its one alias (himbaechel/uarch/xilinx/xilinx.cc maps
-    # xc7a35t onto the xc7a50t database).
+    # class, with its aliases (himbaechel/uarch/xilinx/xilinx.cc maps
+    # xc7a35t onto the xc7a50t database and xc7z007s onto xc7z010's; the
+    # Zynq-7000S dies are spelled out there because their trailing s is part
+    # of the die name).
     for d in "$db"/*-*; do
       fp=$(basename "$d")
       part=$(echo "$fp" | sed -E 's/-[0-9]L?$//')
-      fabric=$(echo "$part" | sed -E 's/^(xc7(s[0-9]+t?|a[0-9]+t|k[0-9]+t|z[0-9]+t?|v[xh]?[0-9]+t)).*/\1/')
+      fabric=$(echo "$part" | sed -E 's/^(xc7z007s|xc7z012s|xc7z014s|xc7[azks][0-9]+t?|xc7vx[0-9]+t?).*/\1/')
       if [ "$fabric" = xc7a35t ]; then
         fabric=xc7a50t
+      fi
+      if [ "$fabric" = xc7z007s ]; then
+        fabric=xc7z010
       fi
       if [ -f "$out/chipdb-$fabric.bin" ]; then
         # Symlink, not copy: one die's database is 20-75 MB and serves every
