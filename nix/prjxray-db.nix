@@ -8,6 +8,6 @@
 fetchFromGitHub {
   owner = "openXC7";
   repo = "prjxray-db";
-  rev = "a90f27c1caefee5276f47440f4c730b50519a86f";
-  hash = "sha256-EugZWK38rwLkhbp81eX/+kr4vrqdzRQuDbLpPn6ij7U=";
+  rev = "517d66a383676cb971177ea92b0ff3b6ea6e8690";
+  hash = "sha256-CA6Lz5sA3Mebusu5lGeM1oW9w5dz8GIjYyFy611SOks=";
 }
