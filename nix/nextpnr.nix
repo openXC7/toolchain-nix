@@ -25,8 +25,8 @@ let
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr";
-    rev = "3e5c2cdd256745fb5adb93f3ffe8c3795b1e7abf";
-    hash = "sha256-N05jX5g+AAaKHfxhVsW5nFXpqMtGrIYDD+2BMXRA3y8=";
+    rev = "4e89c503766a620fd06eb930a6bfca90dab79b02";
+    hash = "sha256-NK4rsk4CBVd7jotIt3r1srYgACW39gfCp4K1UcAo6yI=";
     fetchSubmodules = true;
   };
 in
