@@ -77,11 +77,14 @@
             };
           };
 
-          # Pinned to the commit that makes fpga-as assemble the same
-          # configuration as fasm2frames + xc7frames2bit on our databases.
-          # Switch back to lromor/fpga-assembler once
-          # https://github.com/lromor/fpga-assembler/pull/47 lands.
-          fpga-assembler = (builtins.getFlake "github:hansfbaier/fpga-assembler/cf0e3f08455d502fc6392889c07f482ab8dd2d62").packages.${system}.default;
+          # Back on upstream now that lromor/fpga-assembler#47 ("Reproduce the
+          # reference implementation's output") has landed: e3947384 makes
+          # fpga-as assemble the same configuration as fasm2frames +
+          # xc7frames2bit on our databases, which is what the hansfbaier fork's
+          # cf0e3f08 was pinned for.  The tree is that commit with the injected
+          # configuration moved out of assembler.cc into injected-features.cc;
+          # flake.lock and MODULE.bazel are unchanged, still Bazel 8.
+          fpga-assembler = (builtins.getFlake "github:lromor/fpga-assembler/e39473843769526e940be2ec747b273d297786a4").packages.${system}.default;
 
           sv-elab = callPackage ./nix/sv-elab.nix { };
         });
