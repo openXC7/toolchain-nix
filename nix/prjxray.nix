@@ -1,3 +1,9 @@
+# The frame tools (fasm2frames, xc7frames2bit) the chipdb generator's FASM is
+# assembled with, and the `prjxray` Python package fasm2frames imports.
+#
+# Pinned to the revision openXC7/nextpnr's own CI uses (PRJXRAY_REV in
+# .github/workflows/demos.yml), like nix/prjxray-db.nix, so the tools and the
+# database they read come from one combination the engine's CI has exercised.
 { stdenv, lib, fetchFromGitHub, cmake, git, python312Packages, eigen, python312
 , ... }:
 stdenv.mkDerivation rec {
@@ -7,8 +13,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "prjxray";
-    rev = "3bfaec761e45dcb27ee8d474f33f9a853fb7789b";
-    hash = "sha256-SNYbMhHXuITZxQr2j6ckehHKcUGIiN4B8mmfmzHY+aQ=";
+    rev = "54fea88cc61b58b76a83d0be7b1194a5ec1d7d2d";
+    hash = "sha256-vPUPUuofzHE+sNnsDbNXG4f/I9e056f6HHuK1vO/a9U=";
     fetchSubmodules = true;
     leaveDotGit = true;
     postFetch = ''rm -rf $out/.git'';
