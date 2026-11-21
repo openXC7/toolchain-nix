@@ -77,14 +77,37 @@
             };
           };
 
-          # Back on upstream now that lromor/fpga-assembler#47 ("Reproduce the
-          # reference implementation's output") has landed: e3947384 makes
-          # fpga-as assemble the same configuration as fasm2frames +
-          # xc7frames2bit on our databases, which is what the hansfbaier fork's
-          # cf0e3f08 was pinned for.  The tree is that commit with the injected
-          # configuration moved out of assembler.cc into injected-features.cc;
-          # flake.lock and MODULE.bazel are unchanged, still Bazel 8.
-          fpga-assembler = (builtins.getFlake "github:lromor/fpga-assembler/e39473843769526e940be2ec747b273d297786a4").packages.${system}.default;
+          # lromor/fpga-assembler main.  Since e3947384 (the merge of #47,
+          # "Reproduce the reference implementation's output"), #50-#63 resolve
+          # pseudo-PIPs before applying tile bit aliases, write the data length
+          # into the .bit header before the data, count long-literal words from
+          # the least significant digit, fix the bitstream writer's
+          # include-cleaner findings, and move the build to Bazel 9 through
+          # nixpkgs' bazelPackage.  It still assembles the same frames as
+          # fasm2frames + xc7frames2bit on our databases.
+          #
+          # Its flake pins the Bazel repository-cache FOD to sha256-Y/vF...,
+          # but bazel 9.1.1 from the flake's locked nixpkgs fetches this tree's
+          # cache as sha256-64mk..., so the package as published fails its
+          # fixed-output check.  Rebuild that one FOD with the observed hash,
+          # and regenerate preBuildPhase from the new path rather than replacing
+          # text in the old one: that would leave the upstream cache in the
+          # string's derivation context and still build it.
+          fpga-assembler =
+            let
+              upstream = (builtins.getFlake "github:lromor/fpga-assembler/4939337a337c91e0e236aa94a66cc71ac516ff44").packages.${system}.default;
+              repoCache = upstream.drvAttrs.bazelRepoCache.overrideAttrs (_: {
+                outputHash = "sha256-64mkBZCcdIqc0LWnahSlpTpInOOGFyVMO5K8vesITsE=";
+              });
+            in
+            upstream.overrideAttrs (_: {
+              bazelRepoCache = repoCache;
+              preBuildPhase = ''
+                # repo_cache needs to be writeable even in air-gapped builds
+                mkdir repo_cache
+                ${pkgs.lndir}/bin/lndir -silent ${repoCache}/repo_cache repo_cache
+              '';
+            });
 
           sv-elab = callPackage ./nix/sv-elab.nix { };
         });

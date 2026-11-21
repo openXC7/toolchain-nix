@@ -1,9 +1,12 @@
 # The frame tools (fasm2frames, xc7frames2bit) the chipdb generator's FASM is
 # assembled with, and the `prjxray` Python package fasm2frames imports.
 #
-# Pinned to the revision openXC7/nextpnr's own CI uses (PRJXRAY_REV in
-# .github/workflows/demos.yml), like nix/prjxray-db.nix, so the tools and the
-# database they read come from one combination the engine's CI has exercised.
+# Pinned to the openXC7/prjxray tip.  Since the revision the engine's CI still
+# names (54fea88c, PRJXRAY_REV), #34-#56 add fasm2frames and bit2fasm console
+# scripts backed by prjxray.fasm2frames/prjxray.bit2fasm, optional pyjson5,
+# input validation in bitread/segmatch/frames, sanitizer and CI coverage, and
+# the CMake/YAML dependency fixes.  The database format these tools read is
+# unchanged.
 { stdenv, lib, fetchFromGitHub, cmake, git, python312Packages, eigen, python312
 , ... }:
 stdenv.mkDerivation rec {
@@ -13,8 +16,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "prjxray";
-    rev = "54fea88cc61b58b76a83d0be7b1194a5ec1d7d2d";
-    hash = "sha256-vPUPUuofzHE+sNnsDbNXG4f/I9e056f6HHuK1vO/a9U=";
+    rev = "1cd6ae3e6afff798201259e17aa605afe97b86d6";
+    hash = "sha256-H8Nly7A9dd5TsoB6TdZ3EmXxFyxJlAI6qRdSzhS7GIw=";
     fetchSubmodules = true;
     leaveDotGit = true;
     postFetch = ''rm -rf $out/.git'';
@@ -30,8 +33,6 @@ stdenv.mkDerivation rec {
     sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
     sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
     sed -i 's/VERSION 3.5.0/VERSION 3.14.0/g' CMakeLists.txt
-    sed -i 's/VERSION 3.0.2/VERSION 3.14.0/g' third_party/gflags/CMakeLists.txt
-    sed -i 's/VERSION 2.8.12/VERSION 3.14.0/g' third_party/cctz/CMakeLists.txt
     sed -i '29 itarget_compile_options(libprjxray PUBLIC "-Wno-deprecated")' lib/CMakeLists.txt
   '';
 

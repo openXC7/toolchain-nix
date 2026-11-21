@@ -10,6 +10,15 @@
 # Renaming the binary would not work — the makefiles pass --xdc/--fasm, which
 # nextpnr-himbaechel does not take — and teaching it the fork's CLI is an
 # upstream change to a binary that serves every himbaechel uarch.
+#
+# 42d06c5f is main's merge of #212.  Since the previous pin (cf5f7a21), the
+# xilinx uarch gained: per-speed-grade timing tables, the PAD row counting user
+# I/O only, the hold-fix shared-wire group as router2's walk, differential-pair
+# N from the package and IBUFDS_DIFF_OUT packing, a BEL attribute in both
+# NEXTPNR_BEL forms, an inverted clock timed on the falling edge, off-slice
+# SRL Q31 folding, a create_clock period that must be positive, part resource
+# limits checked after cell insertion, and regression guards for each.  The
+# router and placer picked up the sinkless-slack and 64-bit timeout fixes.
 { lib
 , stdenv
 , fetchFromGitHub
@@ -25,8 +34,8 @@ let
   src = fetchFromGitHub {
     owner = "openXC7";
     repo = "nextpnr";
-    rev = "cf5f7a210fa2deac8b6967c43acf426298c8e1a6";
-    hash = "sha256-yCcg1RTgyMgWxCk0v/1bgGpJPv6U2Dr6SplU4xtd8iY=";
+    rev = "42d06c5ff00aa04fd06f414b8e0e1ef3673c3a33";
+    hash = "sha256-GPLSWYLk5NSQsxOH4j+24fq3Hh/Q24StPNobsAFqhuI=";
     fetchSubmodules = true;
   };
 in
